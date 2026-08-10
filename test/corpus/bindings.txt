@@ -1,0 +1,193 @@
+==================
+bindings
+==================
+
+decl name : Int;
+let x : Int = 1;
+def add : Fn(Int, Int) -> Int = fn(a, b) { a + b };
+
+---
+
+(source_file
+  (module_body
+    (decl_binding
+      (identifier)
+      (type_scheme
+        (contract
+          (contract_expr
+            (identifier)))))
+    (let_binding
+      (identifier)
+      (primary
+        (variable_expr
+          (identifier)))
+      (primary
+        (int_expr)))
+    (def_binding
+      (identifier)
+      (type_scheme
+        (contract
+          (function_contract
+            (contract
+              (contract_expr
+                (identifier)))
+            (contract
+              (contract_expr
+                (identifier)))
+            (contract
+              (contract_expr
+                (identifier))))))
+      (primary
+        (closure
+          (parameters
+            (parameter
+              (identifier))
+            (parameter
+              (identifier)))
+          (block
+            (module_body
+              (binary_expr
+                (primary
+                  (variable_expr
+                    (identifier)))
+                (primary
+                  (variable_expr
+                    (identifier)))))))))))
+
+==================
+precedence: pipeline binds loosest
+==================
+
+let r = a + b |> f;
+
+---
+
+(source_file
+  (module_body
+    (let_binding
+      (identifier)
+      (pipeline_expr
+        (binary_expr
+          (primary
+            (variable_expr
+              (identifier)))
+          (primary
+            (variable_expr
+              (identifier))))
+        (primary
+          (variable_expr
+            (identifier)))))))
+
+==================
+precedence: call binds tighter than field
+==================
+
+let r = f(a).b;
+
+---
+
+(source_file
+  (module_body
+    (let_binding
+      (identifier)
+      (field_expr
+        (call_expr
+          (primary
+            (variable_expr
+              (identifier)))
+          (arguments
+            (primary
+              (variable_expr
+                (identifier)))))
+        (identifier)))))
+
+==================
+type scheme with for parameters
+==================
+
+def Parser : for(A) Fn(A) -> Box(Int) = fn(x) -> Int { x };
+
+---
+
+(source_file
+  (module_body
+    (def_binding
+      (identifier)
+      (type_scheme
+        (type_parameters
+          (identifier))
+        (contract
+          (function_contract
+            (contract
+              (contract_expr
+                (identifier)))
+            (contract
+              (contract_expr
+                (identifier)
+                (contract
+                  (contract_expr
+                    (identifier))))))))
+      (primary
+        (closure
+          (parameters
+            (parameter
+              (identifier)))
+          (primary
+            (variable_expr
+              (identifier)))
+          (block
+            (module_body
+              (primary
+                (variable_expr
+                  (identifier))))))))))
+
+==================
+concat string with interpolation
+==================
+
+let name = `hello \{who} world`;
+
+---
+
+(source_file
+  (module_body
+    (let_binding
+      (identifier)
+      (primary
+        (concat_string
+          (concat_fragment)
+          (interpolation
+            (primary
+              (variable_expr
+                (identifier))))
+          (concat_fragment))))))
+
+==================
+call section with placeholders
+==================
+
+let s = transform\(_1, 123, _0);
+
+---
+
+(source_file
+  (module_body
+    (let_binding
+      (identifier)
+      (section_expr
+        (primary
+          (variable_expr
+            (identifier)))
+        (section_arguments
+          (section_lparen)
+          (argument
+            (primary
+              (variable_expr
+                (identifier))))
+          (argument
+            (primary
+              (int_expr)))
+          (argument
+            (primary
+              (variable_expr
+                (identifier)))))))))

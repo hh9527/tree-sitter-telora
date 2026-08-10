@@ -141,3 +141,10 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# tree-sitter build artifacts
+*.wasm
+target/
+__pycache__/
+.pytest_cache/
+
