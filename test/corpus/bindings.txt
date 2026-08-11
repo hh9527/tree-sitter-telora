@@ -102,6 +102,46 @@ let r = f(a).b;
         (identifier)))))
 
 ==================
+marked type application and positional projection
+==================
+
+let specialized = generic@[Int];
+let item = values[index];
+let first = pair.0;
+
+---
+
+(source_file
+  (module_body
+    (let_binding
+      (identifier)
+      (type_apply_expr
+        (primary
+          (variable_expr
+            (identifier)))
+        (type_arguments
+          (type_argument
+            (primary
+              (variable_expr
+                (identifier)))))))
+    (let_binding
+      (identifier)
+      (index_expr
+        (primary
+          (variable_expr
+            (identifier)))
+        (primary
+          (variable_expr
+            (identifier)))))
+    (let_binding
+      (identifier)
+      (tuple_projection_expr
+        (primary
+          (variable_expr
+            (identifier)))
+        (int_expr)))))
+
+==================
 type scheme with for parameters
 ==================
 

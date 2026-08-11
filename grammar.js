@@ -178,8 +178,10 @@ module.exports = grammar({
       $.propagate_expr,
       $.call_expr,
       $.type_apply_expr,
+      $.index_expr,
       $.section_expr,
       $.field_expr,
+      $.tuple_projection_expr,
       $.primary,
     ),
 
@@ -199,9 +201,11 @@ module.exports = grammar({
     // `f(a).b` reduces call before field while `f.a(b)` shifts call first.
     propagate_expr: $ => prec(24, seq($.expression, '?')),
     call_expr: $ => prec(22, seq($.expression, $.arguments)),
-    type_apply_expr: $ => prec(20, seq($.expression, $.type_arguments)),
+    type_apply_expr: $ => prec(20, seq($.expression, '@', $.type_arguments)),
+    index_expr: $ => prec(20, seq($.expression, '[', $.expression, ']')),
     section_expr: $ => prec(18, seq($.expression, $.section_arguments)),
     field_expr: $ => prec(16, seq($.expression, '.', $.identifier)),
+    tuple_projection_expr: $ => prec(16, seq($.expression, '.', $.int_expr)),
 
     primary: $ => choice(
       $.int_expr,

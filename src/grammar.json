@@ -1027,11 +1027,19 @@
         },
         {
           "type": "SYMBOL",
+          "name": "index_expr"
+        },
+        {
+          "type": "SYMBOL",
           "name": "section_expr"
         },
         {
           "type": "SYMBOL",
           "name": "field_expr"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "tuple_projection_expr"
         },
         {
           "type": "SYMBOL",
@@ -1259,8 +1267,37 @@
             "name": "expression"
           },
           {
+            "type": "STRING",
+            "value": "@"
+          },
+          {
             "type": "SYMBOL",
             "name": "type_arguments"
+          }
+        ]
+      }
+    },
+    "index_expr": {
+      "type": "PREC",
+      "value": 20,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "expression"
+          },
+          {
+            "type": "STRING",
+            "value": "["
+          },
+          {
+            "type": "SYMBOL",
+            "name": "expression"
+          },
+          {
+            "type": "STRING",
+            "value": "]"
           }
         ]
       }
@@ -1299,6 +1336,27 @@
           {
             "type": "SYMBOL",
             "name": "identifier"
+          }
+        ]
+      }
+    },
+    "tuple_projection_expr": {
+      "type": "PREC",
+      "value": 16,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "expression"
+          },
+          {
+            "type": "STRING",
+            "value": "."
+          },
+          {
+            "type": "SYMBOL",
+            "name": "int_expr"
           }
         ]
       }
