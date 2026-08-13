@@ -166,7 +166,7 @@ module.exports = grammar({
       $.contract_expr, // listed first: 'Identifier ...' preferred over 'Fn'
       $.function_contract,
     ),
-    contract_expr: $ => prec.left(1, seq($.identifier, optional(seq('(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')')))),
+    contract_expr: $ => prec.left(1, seq($.identifier, repeat(seq('.', $.identifier)), optional(seq('(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')')))),
     function_contract: $ => seq('Fn', '(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')', '->', $.contract),
 
     // ---------------------------------------------------------------- expression
