@@ -146,7 +146,22 @@ module.exports = grammar({
     native_binding: $ => seq('native', $.identifier, ':', $.type_scheme, ';'),
     native_type_binding: $ => seq('native', 'type', $.identifier, '@', /[0-9]+/, ';'),
 
-    type_binding: $ => seq(repeat($.decorator), 'type', $.identifier, optional($.type_parameters), '=', $.expression, ';'),
+    type_binding: $ => seq(repeat($.decorator), 'type', $.identifier, optional($.type_parameters), '=', $.type_initializer, ';'),
+    type_initializer: $ => choice($.struct_initializer, $.enum_initializer, $.expression),
+    struct_initializer: $ => seq(
+      'struct',
+      '{',
+      optional(seq($.struct_initializer_field, repeat(seq(',', $.struct_initializer_field)), optional(','))),
+      '}',
+    ),
+    struct_initializer_field: $ => seq(repeat($.decorator), $.identifier, ':', $.expression),
+    enum_initializer: $ => seq(
+      'enum',
+      '{',
+      optional(seq($.enum_initializer_variant, repeat(seq(',', $.enum_initializer_variant)), optional(','))),
+      '}',
+    ),
+    enum_initializer_variant: $ => seq(repeat($.decorator), $.atom_expr, optional(seq('(', $.expression, ')'))),
     decorator: $ => seq('@', $.decorator_path, optional($.arguments)),
     decorator_path: $ => seq($.identifier, repeat(seq('.', $.identifier))),
 
@@ -161,12 +176,18 @@ module.exports = grammar({
 
     // ---------------------------------------------------------------- types
     type_scheme: $ => seq(optional(seq('for', $.type_parameters)), $.contract),
-    type_parameters: $ => seq('(', optional(seq($.identifier, repeat(seq(',', $.identifier)), optional(','))), ')'),
+    type_parameters: $ => seq('(', $.identifier, repeat(seq(',', $.identifier)), optional(','), ')'),
     contract: $ => choice(
       $.contract_expr, // listed first: 'Identifier ...' preferred over 'Fn'
       $.function_contract,
     ),
-    contract_expr: $ => prec.left(1, seq($.identifier, repeat(seq('.', $.identifier)), optional(seq('(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')')))),
+    contract_expr: $ => prec.left(1, seq(
+      $.identifier,
+      repeat(seq('.', $.identifier)),
+      optional(seq('(', optional(seq($.contract_argument, repeat(seq(',', $.contract_argument)), optional(','))), ')')),
+    )),
+    contract_argument: $ => choice($.contract, $.contract_array),
+    contract_array: $ => seq('[', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ']'),
     function_contract: $ => seq('Fn', '(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')', '->', $.contract),
 
     // ---------------------------------------------------------------- expression
@@ -180,32 +201,35 @@ module.exports = grammar({
       $.type_apply_expr,
       $.index_expr,
       $.section_expr,
-      $.field_expr,
-      $.tuple_projection_expr,
+      $.dot_postfix_expr,
       $.primary,
     ),
 
     pipeline_expr: $ => prec.left(2, seq($.expression, '|>', $.expression)),
 
     binary_expr: $ => choice(
-      prec.left(12, seq($.expression, choice('*', '/'), $.expression)),
-      prec.left(10, seq($.expression, choice('+', '-'), $.expression)),
-      prec.left(8, seq($.expression, choice('<', '=='), $.expression)),
+      prec.left(16, seq($.expression, choice('*', '/', '%'), $.expression)),
+      prec.left(14, seq($.expression, choice('+', '-'), $.expression)),
+      prec.left(12, seq($.expression, '&', $.expression)),
+      prec.left(11, seq($.expression, '^', $.expression)),
+      prec.left(10, seq($.expression, '|', $.expression)),
+      prec.left(8, seq($.expression, choice('<', '<=', '>', '>=', '==', '!='), $.expression)),
       prec.left(6, seq($.expression, '&&', $.expression)),
       prec.left(4, seq($.expression, '||', $.expression)),
     ),
 
-    unary_expr: $ => prec(14, seq('-', $.expression)),
+    unary_expr: $ => prec(18, seq(choice('-', '!'), $.expression)),
 
     // postfix chain: tighter-binding postfixes at the bottom so e.g.
     // `f(a).b` reduces call before field while `f.a(b)` shifts call first.
-    propagate_expr: $ => prec(24, seq($.expression, '?')),
-    call_expr: $ => prec(22, seq($.expression, $.arguments)),
-    type_apply_expr: $ => prec(20, seq($.expression, '@', $.type_arguments)),
-    index_expr: $ => prec(20, seq($.expression, '[', $.expression, ']')),
-    section_expr: $ => prec(18, seq($.expression, $.section_arguments)),
-    field_expr: $ => prec(16, seq($.expression, '.', $.identifier)),
-    tuple_projection_expr: $ => prec(16, seq($.expression, '.', $.int_expr)),
+    propagate_expr: $ => prec(30, seq($.expression, '?')),
+    call_expr: $ => prec(28, seq($.expression, $.arguments)),
+    type_apply_expr: $ => prec(26, seq($.expression, '@', $.type_arguments)),
+    index_expr: $ => prec(24, seq($.expression, '[', $.expression, ']')),
+    section_expr: $ => prec(22, seq($.expression, $.section_arguments)),
+    dot_postfix_expr: $ => prec(20, seq($.expression, '.', choice($.postfix_intrinsic_suffix, $.projection_suffix))),
+    postfix_intrinsic_suffix: $ => seq($.identifier, '!', $.arguments),
+    projection_suffix: $ => choice($.identifier, $.int_expr),
 
     primary: $ => choice(
       $.int_expr,
@@ -260,13 +284,14 @@ module.exports = grammar({
     parameter: $ => seq($.identifier, optional(seq(':', $.expression))),
 
     arguments: $ => seq('(', optional(seq($.expression, repeat(seq(',', $.expression)), optional(','))), ')'),
-    type_arguments: $ => seq('[', optional(seq($.type_argument, repeat(seq(',', $.type_argument)), optional(','))), ']'),
+    type_arguments: $ => seq('[', $.type_argument, repeat(seq(',', $.type_argument)), optional(','), ']'),
     type_argument: $ => choice($.expression, $.placeholder),
     section_arguments: $ => seq($.section_lparen, optional(seq($.argument, repeat(seq(',', $.argument)), optional(','))), ')'),
     argument: $ => choice($.expression, $.placeholder, $.indexed_placeholder),
 
-    if_expr: $ => seq('if', $.expression, $.block, 'else', $.block),
-    if_let_expr: $ => seq('if', 'let', $.pattern, '=', $.expression, $.block, 'else', $.block),
+    ctrl_block: $ => choice($.block, $.if_let_expr, $.if_expr, $.match_expr, $.return_expr),
+    if_expr: $ => seq('if', $.expression, $.block, 'else', $.ctrl_block),
+    if_let_expr: $ => seq('if', 'let', $.pattern, '=', $.expression, $.block, 'else', $.ctrl_block),
     match_expr: $ => seq('match', $.expression, '{', optional(seq($.match_arm, repeat(seq(',', $.match_arm)), optional(','))), '}'),
     match_arm: $ => seq($.pattern, optional(seq('if', $.expression)), '=>', $.expression),
     return_expr: $ => seq('return', $.expression, ';'),

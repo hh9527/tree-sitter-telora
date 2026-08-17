@@ -35,7 +35,7 @@ bower_components
 .lock-wscript
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
+build/
 
 # Dependency directories
 node_modules/
@@ -147,4 +147,3 @@ vite.config.ts.timestamp-*
 target/
 __pycache__/
 .pytest_cache/
-

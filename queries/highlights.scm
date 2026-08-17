@@ -9,6 +9,8 @@
   "option"
   "for"
   "type"
+  "struct"
+  "enum"
   "fn"
   "Fn"
   "interpreter"
@@ -73,8 +75,16 @@
   "-"
   "*"
   "/"
+  "%"
+  "&"
+  "|"
+  "^"
   "<"
+  "<="
+  ">"
+  ">="
   "=="
+  "!="
   "&&"
   "||"
   "|>"
@@ -105,6 +115,8 @@
 (interpreter_intrinsic
   "interpreter" @keyword)
 (named_intrinsic
+  (identifier) @function.builtin)
+(postfix_intrinsic_suffix
   (identifier) @function.builtin)
 (legacy_interpreter_expr
   "interpreter" @keyword)

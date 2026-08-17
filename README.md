@@ -75,6 +75,9 @@ lexemes. Everything else is a regex or anonymous token:
   binding's `?0`); `let x : T = e` is the plain `let_binding`.
 - `def` has no parameter list (`def name : scheme = expr`), so
   `def f(x) = ...` is a syntax error, as in the Lelwel grammar.
+- Named Struct and Enum models use direct declaration initializers:
+  `type User = struct {...}` and `type Option(T) = enum {'None, 'Some(T)}`.
+  The removed `@struct` / `@enum` and callable constructors are not accepted.
 
 ## Development
 
