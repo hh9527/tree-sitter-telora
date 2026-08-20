@@ -96,7 +96,9 @@ module.exports = grammar({
   rules: {
     source_file: $ => optional($.module_body),
 
-    module_body: $ => choice(
+    module_body: $ => repeat1($.module_binding),
+
+    block_body: $ => choice(
       seq(repeat1($.binding), optional($.expression)),
       $.expression,
     ),
@@ -113,6 +115,17 @@ module.exports = grammar({
     indexed_placeholder: $ => /_[0-9]+/,
 
     // ---------------------------------------------------------------- bindings
+    module_binding: $ => choice(
+      $.option_binding,
+      $.export_statement,
+      $.decl_binding,
+      $.def_binding,
+      $.native_type_binding,
+      $.native_binding,
+      $.type_binding,
+      $.import_binding,
+    ),
+
     binding: $ => choice(
       $.option_binding,
       $.export_statement,
@@ -132,7 +145,7 @@ module.exports = grammar({
 
     export_statement: $ => seq(
       'export',
-      choice($.let_binding, $.def_binding, $.type_binding, seq($.export_items, ';')),
+      choice($.def_binding, $.type_binding, seq($.export_items, ';')),
     ),
     export_items: $ => seq('{', optional(seq($.export_item, repeat(seq(',', $.export_item)), optional(','))), '}'),
     export_item: $ => seq($.identifier, optional(seq('as', $.identifier))),
@@ -241,6 +254,7 @@ module.exports = grammar({
       $.named_intrinsic,
       $.variable_expr,
       $.interpreter_intrinsic,
+      $.do_expr,
       $.if_let_expr,
       $.legacy_interpreter_expr,
       $.paren_expr,
@@ -277,7 +291,8 @@ module.exports = grammar({
       seq(repeat($.decorator), choice($.identifier, $.string_literal), ':', $.expression),
     ),
 
-    block: $ => seq('{', optional($.module_body), '}'),
+    block: $ => seq('{', optional($.block_body), '}'),
+    do_expr: $ => seq('do', $.block),
 
     closure: $ => seq('fn', $.parameters, optional(seq('->', $.expression)), $.block),
     parameters: $ => seq('(', optional(seq($.parameter, repeat(seq(',', $.parameter)), optional(','))), ')'),

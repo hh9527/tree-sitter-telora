@@ -3,145 +3,154 @@ bindings
 ==================
 
 decl name : Int;
-let x : Int = 1;
+def x : Int = 1;
 def add : Fn(Int, Int) -> Int = fn(a, b) { a + b };
 
 ---
 
 (source_file
   (module_body
-    (decl_binding
-      (identifier)
-      (type_scheme
-        (contract
-          (contract_expr
-            (identifier)))))
-    (let_binding
-      (identifier)
-      (primary
-        (variable_expr
-          (identifier)))
-      (primary
-        (int_expr)))
-    (def_binding
-      (identifier)
-      (type_scheme
-        (contract
-          (function_contract
-            (contract
-              (contract_expr
+    (module_binding
+      (decl_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (contract_expr
+              (identifier))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (contract_expr
+              (identifier))))
+        (primary
+          (int_expr))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (function_contract
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (contract_expr
+                  (identifier))))))
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier))
+              (parameter
                 (identifier)))
-            (contract
-              (contract_expr
-                (identifier)))
-            (contract
-              (contract_expr
-                (identifier))))))
-      (primary
-        (closure
-          (parameters
-            (parameter
-              (identifier))
-            (parameter
-              (identifier)))
-          (block
-            (module_body
-              (binary_expr
-                (primary
-                  (variable_expr
-                    (identifier)))
-                (primary
-                  (variable_expr
-                    (identifier)))))))))))
+            (block
+              (block_body
+                (binary_expr
+                  (primary
+                    (variable_expr
+                      (identifier)))
+                  (primary
+                    (variable_expr
+                      (identifier))))))))))))
 
 ==================
 precedence: pipeline binds loosest
 ==================
 
-let r = a + b |> f;
+def r = a + b |> f;
 
 ---
 
 (source_file
   (module_body
-    (let_binding
-      (identifier)
-      (pipeline_expr
-        (binary_expr
+    (module_binding
+      (def_binding
+        (identifier)
+        (pipeline_expr
+          (binary_expr
+            (primary
+              (variable_expr
+                (identifier)))
+            (primary
+              (variable_expr
+                (identifier))))
           (primary
             (variable_expr
-              (identifier)))
-          (primary
-            (variable_expr
-              (identifier))))
-        (primary
-          (variable_expr
-            (identifier)))))))
+              (identifier))))))))
 
 ==================
 precedence: call binds tighter than field
 ==================
 
-let r = f(a).b;
+def r = f(a).b;
 
 ---
 
 (source_file
   (module_body
-    (let_binding
-      (identifier)
-      (dot_postfix_expr
-        (call_expr
-          (primary
-            (variable_expr
-              (identifier)))
-          (arguments
+    (module_binding
+      (def_binding
+        (identifier)
+        (dot_postfix_expr
+          (call_expr
             (primary
               (variable_expr
-                (identifier)))))
-        (projection_suffix
-          (identifier))))))
+                (identifier)))
+            (arguments
+              (primary
+                (variable_expr
+                  (identifier)))))
+          (projection_suffix
+            (identifier)))))))
 
 ==================
 marked type application and positional projection
 ==================
 
-let specialized = generic@[Int];
-let item = values[index];
-let first = pair.0;
+def specialized = generic@[Int];
+def item = values[index];
+def first = pair.0;
 
 ---
 
 (source_file
   (module_body
-    (let_binding
-      (identifier)
-      (type_apply_expr
-        (primary
-          (variable_expr
-            (identifier)))
-        (type_arguments
-          (type_argument
-            (primary
-              (variable_expr
-                (identifier)))))))
-    (let_binding
-      (identifier)
-      (index_expr
-        (primary
-          (variable_expr
-            (identifier)))
-        (primary
-          (variable_expr
-            (identifier)))))
-    (let_binding
-      (identifier)
-      (dot_postfix_expr
-        (primary
-          (variable_expr
-            (identifier)))
-        (projection_suffix
-          (int_expr))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_apply_expr
+          (primary
+            (variable_expr
+              (identifier)))
+          (type_arguments
+            (type_argument
+              (primary
+                (variable_expr
+                  (identifier))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (index_expr
+          (primary
+            (variable_expr
+              (identifier)))
+          (primary
+            (variable_expr
+              (identifier))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (dot_postfix_expr
+          (primary
+            (variable_expr
+              (identifier)))
+          (projection_suffix
+            (int_expr)))))))
 
 ==================
 type scheme with for parameters
@@ -153,87 +162,90 @@ def Parser : for(A) Fn(A) -> Box(Int) = fn(x) -> Int { x };
 
 (source_file
   (module_body
-    (def_binding
-      (identifier)
-      (type_scheme
-        (type_parameters
-          (identifier))
-        (contract
-          (function_contract
-            (contract
-              (contract_expr
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (type_parameters
+            (identifier))
+          (contract
+            (function_contract
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (contract_expr
+                  (identifier)
+                  (contract_argument
+                    (contract
+                      (contract_expr
+                        (identifier)))))))))
+        (primary
+          (closure
+            (parameters
+              (parameter
                 (identifier)))
-            (contract
-              (contract_expr
-                (identifier)
-                (contract_argument
-                  (contract
-                    (contract_expr
-                      (identifier)))))))))
-      (primary
-        (closure
-          (parameters
-            (parameter
-              (identifier)))
-          (primary
-            (variable_expr
-              (identifier)))
-          (block
-            (module_body
-              (primary
-                (variable_expr
-                  (identifier))))))))))
+            (primary
+              (variable_expr
+                (identifier)))
+            (block
+              (block_body
+                (primary
+                  (variable_expr
+                    (identifier)))))))))))
 
 ==================
 concat string with interpolation
 ==================
 
-let name = `hello \{who} world`;
+def name = `hello \{who} world`;
 
 ---
 
 (source_file
   (module_body
-    (let_binding
-      (identifier)
-      (primary
-        (concat_string
-          (concat_fragment)
-          (interpolation
-            (primary
-              (variable_expr
-                (identifier))))
-          (concat_fragment))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (primary
+          (concat_string
+            (concat_fragment)
+            (interpolation
+              (primary
+                (variable_expr
+                  (identifier))))
+            (concat_fragment)))))))
 
 ==================
 call section with placeholders
 ==================
 
-let s = transform\(_1, 123, _0);
+def s = transform\(_1, 123, _0);
 
 ---
 
 (source_file
   (module_body
-    (let_binding
-      (identifier)
-      (section_expr
-        (primary
-          (variable_expr
-            (identifier)))
-        (section_arguments
-          (section_lparen)
-          (argument
-            (primary
-              (variable_expr
-                (identifier))))
-          (argument
-            (primary
-              (int_expr)))
-          (argument
-            (primary
-              (variable_expr
-                (identifier)))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (section_expr
+          (primary
+            (variable_expr
+              (identifier)))
+          (section_arguments
+            (section_lparen)
+            (argument
+              (primary
+                (variable_expr
+                  (identifier))))
+            (argument
+              (primary
+                (int_expr)))
+            (argument
+              (primary
+                (variable_expr
+                  (identifier))))))))))
 
 ==================
 declared struct and enum initializers
@@ -256,171 +268,209 @@ type CallExpr = struct { args: Array(Expr) };
 
 (source_file
   (module_body
-    (type_binding
-      (decorator
-        (decorator_path
-          (identifier)
-          (identifier))
-        (arguments
-          (primary
-            (atom_expr))))
-      (identifier)
-      (type_initializer
-        (struct_initializer
-          (struct_initializer_field
-            (decorator
-              (decorator_path
-                (identifier)
-                (identifier))
-              (arguments
-                (primary
-                  (string_expr
-                    (string_literal)))))
+    (module_binding
+      (type_binding
+        (decorator
+          (decorator_path
             (identifier)
+            (identifier))
+          (arguments
             (primary
-              (variable_expr
-                (identifier))))
-          (struct_initializer_field
-            (identifier)
-            (primary
-              (variable_expr
-                (identifier)))))))
-    (type_binding
-      (identifier)
-      (type_initializer
-        (enum_initializer
-          (enum_initializer_variant
-            (atom_expr)
-            (primary
-              (variable_expr
-                (identifier))))
-          (enum_initializer_variant
-            (decorator
-              (decorator_path
-                (identifier)
-                (identifier))
-              (arguments
-                (primary
-                  (string_expr
-                    (string_literal)))))
-            (atom_expr)
-            (primary
-              (variable_expr
-                (identifier)))))))
-    (type_binding
-      (identifier)
-      (type_initializer
-        (struct_initializer
-          (struct_initializer_field
-            (identifier)
-            (call_expr
+              (atom_expr))))
+        (identifier)
+        (type_initializer
+          (struct_initializer
+            (struct_initializer_field
+              (decorator
+                (decorator_path
+                  (identifier)
+                  (identifier))
+                (arguments
+                  (primary
+                    (string_expr
+                      (string_literal)))))
+              (identifier)
               (primary
                 (variable_expr
-                  (identifier)))
-              (arguments
+                  (identifier))))
+            (struct_initializer_field
+              (identifier)
+              (primary
+                (variable_expr
+                  (identifier))))))))
+    (module_binding
+      (type_binding
+        (identifier)
+        (type_initializer
+          (enum_initializer
+            (enum_initializer_variant
+              (atom_expr)
+              (primary
+                (variable_expr
+                  (identifier))))
+            (enum_initializer_variant
+              (decorator
+                (decorator_path
+                  (identifier)
+                  (identifier))
+                (arguments
+                  (primary
+                    (string_expr
+                      (string_literal)))))
+              (atom_expr)
+              (primary
+                (variable_expr
+                  (identifier))))))))
+    (module_binding
+      (type_binding
+        (identifier)
+        (type_initializer
+          (struct_initializer
+            (struct_initializer_field
+              (identifier)
+              (call_expr
                 (primary
                   (variable_expr
-                    (identifier)))))))))))
+                    (identifier)))
+                (arguments
+                  (primary
+                    (variable_expr
+                      (identifier))))))))))))
 
 ==================
 current operators and postfix forms
 ==================
 
-let item = values[1].field.0.dbg!("item");
-let bits = !flag || ((a % 2 & mask) ^ extra | fallback) != 0;
-let branch = if first { 1 } else if let 'Some(x) = value { x } else match other { 'None => return 0; };
+def item = values[1].field.0.dbg!("item");
+def bits = !flag || ((a % 2 & mask) ^ extra | fallback) != 0;
+def branch = if first { 1 } else if let 'Some(x) = value { x } else match other { 'None => return 0; };
 
 ---
 
 (source_file
   (module_body
-    (let_binding
-      (identifier)
-      (dot_postfix_expr
+    (module_binding
+      (def_binding
+        (identifier)
         (dot_postfix_expr
           (dot_postfix_expr
-            (index_expr
-              (primary
-                (variable_expr
-                  (identifier)))
-              (primary
-                (int_expr)))
-            (projection_suffix
-              (identifier)))
-          (projection_suffix
-            (int_expr)))
-        (postfix_intrinsic_suffix
-          (identifier)
-          (arguments
-            (primary
-              (string_expr
-                (string_literal)))))))
-    (let_binding
-      (identifier)
-      (binary_expr
-        (unary_expr
-          (primary
-            (variable_expr
-              (identifier))))
-        (binary_expr
-          (primary
-            (paren_expr
-              (binary_expr
-                (binary_expr
-                  (primary
-                    (paren_expr
-                      (binary_expr
-                        (binary_expr
-                          (primary
-                            (variable_expr
-                              (identifier)))
-                          (primary
-                            (int_expr)))
-                        (primary
-                          (variable_expr
-                            (identifier))))))
-                  (primary
-                    (variable_expr
-                      (identifier))))
+            (dot_postfix_expr
+              (index_expr
                 (primary
                   (variable_expr
-                    (identifier))))))
-          (primary
-            (int_expr)))))
-    (let_binding
-      (identifier)
-      (primary
-        (if_expr
-          (primary
-            (variable_expr
-              (identifier)))
-          (block
-            (module_body
+                    (identifier)))
+                (primary
+                  (int_expr)))
+              (projection_suffix
+                (identifier)))
+            (projection_suffix
+              (int_expr)))
+          (postfix_intrinsic_suffix
+            (identifier)
+            (arguments
               (primary
-                (int_expr))))
-          (ctrl_block
-            (if_let_expr
-              (tagged_pattern
-                (atom_expr)
-                (identifier_pattern
-                  (identifier)))
-              (primary
-                (variable_expr
-                  (identifier)))
-              (block
-                (module_body
+                (string_expr
+                  (string_literal))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (binary_expr
+          (unary_expr
+            (primary
+              (variable_expr
+                (identifier))))
+          (binary_expr
+            (primary
+              (paren_expr
+                (binary_expr
+                  (binary_expr
+                    (primary
+                      (paren_expr
+                        (binary_expr
+                          (binary_expr
+                            (primary
+                              (variable_expr
+                                (identifier)))
+                            (primary
+                              (int_expr)))
+                          (primary
+                            (variable_expr
+                              (identifier))))))
+                    (primary
+                      (variable_expr
+                        (identifier))))
                   (primary
                     (variable_expr
-                      (identifier)))))
-              (ctrl_block
-                (match_expr
+                      (identifier))))))
+            (primary
+              (int_expr))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (primary
+          (if_expr
+            (primary
+              (variable_expr
+                (identifier)))
+            (block
+              (block_body
+                (primary
+                  (int_expr))))
+            (ctrl_block
+              (if_let_expr
+                (tagged_pattern
+                  (atom_expr)
+                  (identifier_pattern
+                    (identifier)))
+                (primary
+                  (variable_expr
+                    (identifier)))
+                (block
+                  (block_body
+                    (primary
+                      (variable_expr
+                        (identifier)))))
+                (ctrl_block
+                  (match_expr
+                    (primary
+                      (variable_expr
+                        (identifier)))
+                    (match_arm
+                      (atom_pattern
+                        (atom_expr))
+                      (primary
+                        (return_expr
+                          (primary
+                            (int_expr)))))))))))))))
+
+==================
+do block module initializer
+==================
+
+def answer: Int = do { let base = 40; base + 2 };
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (contract_expr
+              (identifier))))
+        (primary
+          (do_expr
+            (block
+              (block_body
+                (let_binding
+                  (identifier)
+                  (primary
+                    (int_expr)))
+                (binary_expr
                   (primary
                     (variable_expr
                       (identifier)))
-                  (match_arm
-                    (atom_pattern
-                      (atom_expr))
-                    (primary
-                      (return_expr
-                        (primary
-                          (int_expr))))))))))))))
+                  (primary
+                    (int_expr)))))))))))

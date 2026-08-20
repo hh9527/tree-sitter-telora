@@ -15,6 +15,13 @@
       ]
     },
     "module_body": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "SYMBOL",
+        "name": "module_binding"
+      }
+    },
+    "block_body": {
       "type": "CHOICE",
       "members": [
         {
@@ -62,6 +69,43 @@
     "indexed_placeholder": {
       "type": "PATTERN",
       "value": "_[0-9]+"
+    },
+    "module_binding": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "option_binding"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "export_statement"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "decl_binding"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "def_binding"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "native_type_binding"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "native_binding"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "type_binding"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "import_binding"
+        }
+      ]
     },
     "binding": {
       "type": "CHOICE",
@@ -143,10 +187,6 @@
         {
           "type": "CHOICE",
           "members": [
-            {
-              "type": "SYMBOL",
-              "name": "let_binding"
-            },
             {
               "type": "SYMBOL",
               "name": "def_binding"
@@ -1788,6 +1828,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "do_expr"
+        },
+        {
+          "type": "SYMBOL",
           "name": "if_let_expr"
         },
         {
@@ -2284,7 +2328,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "module_body"
+              "name": "block_body"
             },
             {
               "type": "BLANK"
@@ -2294,6 +2338,19 @@
         {
           "type": "STRING",
           "value": "}"
+        }
+      ]
+    },
+    "do_expr": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "do"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "block"
         }
       ]
     },
