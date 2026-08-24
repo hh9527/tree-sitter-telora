@@ -9,6 +9,8 @@
   "option"
   "for"
   "type"
+  "trait"
+  "impl"
   "struct"
   "enum"
   "fn"
@@ -54,7 +56,17 @@
   (identifier) @type)
 
 (type_parameters
-  (identifier) @type.parameter)
+  (type_parameter
+    (identifier) @type.parameter))
+
+(trait_binding
+  (identifier) @type)
+
+(trait_member
+  (identifier) @function.method)
+
+(impl_member
+  (identifier) @function.method)
 
 (contract_expr
   (identifier) @type)

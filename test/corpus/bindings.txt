@@ -167,7 +167,8 @@ def Parser : for(A) Fn(A) -> Box(Int) = fn(x) -> Int { x };
         (identifier)
         (type_scheme
           (type_parameters
-            (identifier))
+            (type_parameter
+              (identifier)))
           (contract
             (function_contract
               (contract
@@ -193,6 +194,151 @@ def Parser : for(A) Fn(A) -> Box(Int) = fn(x) -> Int { x };
                 (primary
                   (variable_expr
                     (identifier)))))))))))
+
+==================
+static trait declarations, bounds, and implementations
+==================
+
+trait Display {
+  display: Fn(Self) -> String,
+};
+type Endpoint = struct { host: String };
+impl Display for Endpoint {
+  display: fn(value) { value.host },
+};
+def render: for(T: Display + Property(DisplayBy)) Fn(T) -> String = fn(value) {
+  Display.display(value)
+};
+impl for(T: Property(DisplayBy)) Display for T {
+  display: fn(value) { "decorated" },
+};
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (trait_binding
+        (identifier)
+        (trait_member
+          (identifier)
+          (contract
+            (function_contract
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (contract_expr
+                  (identifier))))))))
+    (module_binding
+      (type_binding
+        (identifier)
+        (type_initializer
+          (struct_initializer
+            (struct_initializer_field
+              (identifier)
+              (primary
+                (variable_expr
+                  (identifier))))))))
+    (module_binding
+      (impl_binding
+        (contract
+          (contract_expr
+            (identifier)))
+        (contract
+          (contract_expr
+            (identifier)))
+        (impl_member
+          (identifier)
+          (primary
+            (closure
+              (parameters
+                (parameter
+                  (identifier)))
+              (block
+                (block_body
+                  (dot_postfix_expr
+                    (primary
+                      (variable_expr
+                        (identifier)))
+                    (projection_suffix
+                      (identifier))))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (type_parameters
+            (type_parameter
+              (identifier)
+              (trait_bound
+                (contract
+                  (contract_expr
+                    (identifier))))
+              (trait_bound
+                (contract
+                  (contract_expr
+                    (identifier)
+                    (contract_argument
+                      (contract
+                        (contract_expr
+                          (identifier)))))))))
+          (contract
+            (function_contract
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (contract_expr
+                  (identifier))))))
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier)))
+            (block
+              (block_body
+                (call_expr
+                  (dot_postfix_expr
+                    (primary
+                      (variable_expr
+                        (identifier)))
+                    (projection_suffix
+                      (identifier)))
+                  (arguments
+                    (primary
+                      (variable_expr
+                        (identifier)))))))))))
+    (module_binding
+      (impl_binding
+        (type_parameters
+          (type_parameter
+            (identifier)
+            (trait_bound
+              (contract
+                (contract_expr
+                  (identifier)
+                  (contract_argument
+                    (contract
+                      (contract_expr
+                        (identifier)))))))))
+        (contract
+          (contract_expr
+            (identifier)))
+        (contract
+          (contract_expr
+            (identifier)))
+        (impl_member
+          (identifier)
+          (primary
+            (closure
+              (parameters
+                (parameter
+                  (identifier)))
+              (block
+                (block_body
+                  (primary
+                    (string_expr
+                      (string_literal))))))))))))
 
 ==================
 concat string with interpolation

@@ -123,6 +123,8 @@ module.exports = grammar({
       $.native_type_binding,
       $.native_binding,
       $.type_binding,
+      $.trait_binding,
+      $.impl_binding,
       $.import_binding,
     ),
 
@@ -145,7 +147,7 @@ module.exports = grammar({
 
     export_statement: $ => seq(
       'export',
-      choice($.def_binding, $.type_binding, seq($.export_items, ';')),
+      choice($.def_binding, $.type_binding, $.trait_binding, seq($.export_items, ';')),
     ),
     export_items: $ => seq('{', optional(seq($.export_item, repeat(seq(',', $.export_item)), optional(','))), '}'),
     export_item: $ => seq($.identifier, optional(seq('as', $.identifier))),
@@ -178,6 +180,29 @@ module.exports = grammar({
     decorator: $ => seq('@', $.decorator_path, optional($.arguments)),
     decorator_path: $ => seq($.identifier, repeat(seq('.', $.identifier))),
 
+    trait_binding: $ => seq(
+      'trait',
+      $.identifier,
+      '{',
+      optional(seq($.trait_member, repeat(seq(',', $.trait_member)), optional(','))),
+      '}',
+      ';',
+    ),
+    trait_member: $ => seq($.identifier, ':', $.contract),
+
+    impl_binding: $ => seq(
+      'impl',
+      optional(seq('for', $.type_parameters)),
+      $.contract,
+      'for',
+      $.contract,
+      '{',
+      optional(seq($.impl_member, repeat(seq(',', $.impl_member)), optional(','))),
+      '}',
+      ';',
+    ),
+    impl_member: $ => seq($.identifier, ':', $.expression),
+
     import_binding: $ => seq('import', $.string_literal, $.import_selector, ';'),
     import_selector: $ => choice(
       seq('as', $.identifier, optional(seq(',', choice('*', $.import_items)))),
@@ -189,7 +214,12 @@ module.exports = grammar({
 
     // ---------------------------------------------------------------- types
     type_scheme: $ => seq(optional(seq('for', $.type_parameters)), $.contract),
-    type_parameters: $ => seq('(', $.identifier, repeat(seq(',', $.identifier)), optional(','), ')'),
+    type_parameters: $ => seq('(', $.type_parameter, repeat(seq(',', $.type_parameter)), optional(','), ')'),
+    type_parameter: $ => seq(
+      $.identifier,
+      optional(seq(':', $.trait_bound, repeat(seq('+', $.trait_bound)))),
+    ),
+    trait_bound: $ => $.contract,
     contract: $ => choice(
       $.contract_expr, // listed first: 'Identifier ...' preferred over 'Fn'
       $.function_contract,

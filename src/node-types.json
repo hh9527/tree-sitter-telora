@@ -693,6 +693,10 @@
           "named": true
         },
         {
+          "type": "trait_binding",
+          "named": true
+        },
+        {
           "type": "type_binding",
           "named": true
         }
@@ -788,6 +792,48 @@
         },
         {
           "type": "pattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "impl_binding",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "contract",
+          "named": true
+        },
+        {
+          "type": "impl_member",
+          "named": true
+        },
+        {
+          "type": "type_parameters",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "impl_member",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
           "named": true
         }
       ]
@@ -1051,6 +1097,10 @@
           "named": true
         },
         {
+          "type": "impl_binding",
+          "named": true
+        },
+        {
           "type": "import_binding",
           "named": true
         },
@@ -1064,6 +1114,10 @@
         },
         {
           "type": "option_binding",
+          "named": true
+        },
+        {
+          "type": "trait_binding",
           "named": true
         },
         {
@@ -1592,6 +1646,59 @@
     }
   },
   {
+    "type": "trait_binding",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "trait_member",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "trait_bound",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "contract",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "trait_member",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "contract",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "tuple_pattern",
     "named": true,
     "fields": {},
@@ -1710,7 +1817,7 @@
     }
   },
   {
-    "type": "type_parameters",
+    "type": "type_parameter",
     "named": true,
     "fields": {},
     "children": {
@@ -1719,6 +1826,25 @@
       "types": [
         {
           "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "trait_bound",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "type_parameters",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "type_parameter",
           "named": true
         }
       ]
@@ -1962,6 +2088,10 @@
     "named": false
   },
   {
+    "type": "impl",
+    "named": false
+  },
+  {
     "type": "import",
     "named": false
   },
@@ -2007,6 +2137,10 @@
   },
   {
     "type": "struct",
+    "named": false
+  },
+  {
+    "type": "trait",
     "named": false
   },
   {
