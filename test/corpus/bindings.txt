@@ -209,7 +209,7 @@ impl Display for Endpoint {
 def render: for(T: Display + Property(DisplayBy)) Fn(T) -> String = fn(value) {
   Display.display(value)
 };
-impl for(T: Property(DisplayBy)) Display for T {
+impl(T: Property(DisplayBy)) Display for T {
   display: fn(value) { "decorated" },
 };
 

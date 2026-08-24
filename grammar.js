@@ -192,7 +192,7 @@ module.exports = grammar({
 
     impl_binding: $ => seq(
       'impl',
-      optional(seq('for', $.type_parameters)),
+      optional($.type_parameters),
       $.contract,
       'for',
       $.contract,
