@@ -40,10 +40,6 @@
         "named": true
       },
       {
-        "type": "option_binding",
-        "named": true
-      },
-      {
         "type": "type_binding",
         "named": true
       }
@@ -1113,10 +1109,6 @@
           "named": true
         },
         {
-          "type": "option_binding",
-          "named": true
-        },
-        {
           "type": "trait_binding",
           "named": true
         },
@@ -1190,25 +1182,6 @@
       "types": [
         {
           "type": "identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "option_binding",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "expression",
-          "named": true
-        },
-        {
-          "type": "string_literal",
           "named": true
         }
       ]
@@ -2113,10 +2086,6 @@
   },
   {
     "type": "native",
-    "named": false
-  },
-  {
-    "type": "option",
     "named": false
   },
   {

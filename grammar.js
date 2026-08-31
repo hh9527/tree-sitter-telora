@@ -116,7 +116,6 @@ module.exports = grammar({
 
     // ---------------------------------------------------------------- bindings
     module_binding: $ => choice(
-      $.option_binding,
       $.export_statement,
       $.decl_binding,
       $.def_binding,
@@ -129,7 +128,6 @@ module.exports = grammar({
     ),
 
     binding: $ => choice(
-      $.option_binding,
       $.export_statement,
       // ordered to mirror Lelwel ?N priorities (else > pattern > plain)
       $.let_else_binding,
@@ -142,8 +140,6 @@ module.exports = grammar({
       $.type_binding,
       $.import_binding,
     ),
-
-    option_binding: $ => seq('option', $.string_literal, $.expression, ';'),
 
     export_statement: $ => seq(
       'export',

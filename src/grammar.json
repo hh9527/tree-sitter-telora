@@ -75,10 +75,6 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "option_binding"
-        },
-        {
-          "type": "SYMBOL",
           "name": "export_statement"
         },
         {
@@ -120,10 +116,6 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "option_binding"
-        },
-        {
-          "type": "SYMBOL",
           "name": "export_statement"
         },
         {
@@ -161,27 +153,6 @@
         {
           "type": "SYMBOL",
           "name": "import_binding"
-        }
-      ]
-    },
-    "option_binding": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "option"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "string_literal"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "expression"
-        },
-        {
-          "type": "STRING",
-          "value": ";"
         }
       ]
     },

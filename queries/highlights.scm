@@ -6,7 +6,6 @@
   "decl"
   "def"
   "native"
-  "option"
   "for"
   "type"
   "trait"
