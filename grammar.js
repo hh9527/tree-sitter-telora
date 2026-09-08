@@ -99,9 +99,11 @@ module.exports = grammar({
     module_body: $ => repeat1($.module_binding),
 
     block_body: $ => choice(
-      seq(repeat1($.binding), optional($.expression)),
+      seq(repeat1(choice($.binding, $.expression_statement)), optional($.expression)),
       $.expression,
     ),
+
+    expression_statement: $ => seq($.expression, ';'),
 
     // ---------------------------------------------------------------- lexical
     comment: $ => /#[^\r\n]*/,
@@ -219,6 +221,7 @@ module.exports = grammar({
     contract: $ => choice(
       $.contract_expr, // listed first: 'Identifier ...' preferred over 'Fn'
       $.function_contract,
+      $.unit_contract,
     ),
     contract_expr: $ => prec.left(1, seq(
       $.identifier,
@@ -226,6 +229,7 @@ module.exports = grammar({
       optional(seq('(', optional(seq($.contract_argument, repeat(seq(',', $.contract_argument)), optional(','))), ')')),
     )),
     contract_argument: $ => choice($.contract, $.contract_array),
+    unit_contract: $ => seq('(', ')'),
     contract_array: $ => seq('[', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ']'),
     function_contract: $ => seq('Fn', '(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')', '->', $.contract),
 

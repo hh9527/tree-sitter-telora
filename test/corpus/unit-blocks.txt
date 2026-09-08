@@ -1,0 +1,65 @@
+==================
+Unit contracts and sequential statements
+==================
+
+def zero: Fn() -> () = fn() {};
+def one: Fn(()) -> Unit = fn(value: ()) { value; };
+def result = do { 1; let a = 2; a };
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (function_contract
+              (contract
+                (unit_contract)))))
+        (primary
+          (closure
+            (parameters)
+            (block)))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (function_contract
+              (contract
+                (unit_contract))
+              (contract
+                (contract_expr
+                  (identifier))))))
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier)
+                (primary
+                  (paren_expr))))
+            (block
+              (block_body
+                (expression_statement
+                  (primary
+                    (variable_expr
+                      (identifier))))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (primary
+          (do_expr
+            (block
+              (block_body
+                (expression_statement
+                  (primary
+                    (int_expr)))
+                (let_binding
+                  (identifier)
+                  (primary
+                    (int_expr)))
+                (primary
+                  (variable_expr
+                    (identifier)))))))))))
