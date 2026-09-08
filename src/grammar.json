@@ -1451,6 +1451,51 @@
           "value": "("
         },
         {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "contract"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "contract"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
           "type": "STRING",
           "value": ")"
         }
@@ -2017,11 +2062,19 @@
               {
                 "type": "SYMBOL",
                 "name": "projection_suffix"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "metadata_suffix"
               }
             ]
           }
         ]
       }
+    },
+    "metadata_suffix": {
+      "type": "STRING",
+      "value": "type"
     },
     "postfix_intrinsic_suffix": {
       "type": "SEQ",

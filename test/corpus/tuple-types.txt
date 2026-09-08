@@ -1,0 +1,100 @@
+==================
+Tuple types and explicit metadata
+==================
+
+type Pair = (Int, String);
+def swap: Fn((Int, String)) -> (String, Int) = fn(pair) { (pair.1, pair.0) };
+def metadata = (Int, String).type;
+def imported = module.Pair.type;
+def unit = ().type;
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (type_binding
+        (identifier)
+        (type_initializer
+          (primary
+            (paren_expr
+              (primary
+                (variable_expr
+                  (identifier)))
+              (primary
+                (variable_expr
+                  (identifier))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (function_contract
+              (contract
+                (unit_contract
+                  (contract
+                    (contract_expr
+                      (identifier)))
+                  (contract
+                    (contract_expr
+                      (identifier)))))
+              (contract
+                (unit_contract
+                  (contract
+                    (contract_expr
+                      (identifier)))
+                  (contract
+                    (contract_expr
+                      (identifier))))))))
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier)))
+            (block
+              (block_body
+                (primary
+                  (paren_expr
+                    (dot_postfix_expr
+                      (primary
+                        (variable_expr
+                          (identifier)))
+                      (projection_suffix
+                        (int_expr)))
+                    (dot_postfix_expr
+                      (primary
+                        (variable_expr
+                          (identifier)))
+                      (projection_suffix
+                        (int_expr)))))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (dot_postfix_expr
+          (primary
+            (paren_expr
+              (primary
+                (variable_expr
+                  (identifier)))
+              (primary
+                (variable_expr
+                  (identifier)))))
+          (metadata_suffix))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (dot_postfix_expr
+          (dot_postfix_expr
+            (primary
+              (variable_expr
+                (identifier)))
+            (projection_suffix
+              (identifier)))
+          (metadata_suffix))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (dot_postfix_expr
+          (primary
+            (paren_expr))
+          (metadata_suffix))))))

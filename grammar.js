@@ -229,7 +229,7 @@ module.exports = grammar({
       optional(seq('(', optional(seq($.contract_argument, repeat(seq(',', $.contract_argument)), optional(','))), ')')),
     )),
     contract_argument: $ => choice($.contract, $.contract_array),
-    unit_contract: $ => seq('(', ')'),
+    unit_contract: $ => seq('(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')'),
     contract_array: $ => seq('[', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ']'),
     function_contract: $ => seq('Fn', '(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')', '->', $.contract),
 
@@ -270,7 +270,8 @@ module.exports = grammar({
     type_apply_expr: $ => prec(26, seq($.expression, '@', $.type_arguments)),
     index_expr: $ => prec(24, seq($.expression, '[', $.expression, ']')),
     section_expr: $ => prec(22, seq($.expression, $.section_arguments)),
-    dot_postfix_expr: $ => prec(20, seq($.expression, '.', choice($.postfix_intrinsic_suffix, $.projection_suffix))),
+    dot_postfix_expr: $ => prec(20, seq($.expression, '.', choice($.postfix_intrinsic_suffix, $.projection_suffix, $.metadata_suffix))),
+    metadata_suffix: $ => 'type',
     postfix_intrinsic_suffix: $ => seq($.identifier, '!', $.arguments),
     projection_suffix: $ => choice($.identifier, $.int_expr),
 

@@ -602,6 +602,10 @@
           "named": true
         },
         {
+          "type": "metadata_suffix",
+          "named": true
+        },
+        {
           "type": "postfix_intrinsic_suffix",
           "named": true
         },
@@ -1094,6 +1098,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "metadata_suffix",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "module_binding",
@@ -1883,7 +1892,17 @@
   {
     "type": "unit_contract",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "contract",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "variable_expr",
