@@ -1,0 +1,24 @@
+==================
+Interpolation and escapes remain distinct from content
+==================
+` a\n # text \{ "b" }\q `
+---
+
+(source_file
+  (module_body
+    (primary
+      (concat_string
+        (concat_fragment)
+        (escape_sequence)
+        (concat_fragment)
+        (interpolation
+          (spaces)
+          (primary
+            (string_expr
+              (string_literal
+                (quote_start)
+                (string_text)
+                (quote_end))))
+          (spaces))
+        (escape_sequence)
+        (concat_fragment)))))

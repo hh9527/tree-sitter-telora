@@ -9,54 +9,80 @@ def add : Fn(Int, Int) -> Int = fn(a, b) { a + b };
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (decl_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_scheme
           (contract
             (contract_expr
               (identifier))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_scheme
           (contract
             (contract_expr
               (identifier))))
+        (spaces)
+        (spaces)
         (primary
           (int_expr))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_scheme
           (contract
             (function_contract
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
+              (spaces)
               (contract
                 (contract_expr
                   (identifier))))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier))
+              (spaces)
               (parameter
                 (identifier)))
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (binary_expr
                   (primary
                     (variable_expr
                       (identifier)))
+                  (spaces)
+                  (spaces)
                   (primary
                     (variable_expr
-                      (identifier))))))))))))
+                      (identifier)))))
+              (spaces)))))))
+  (newline))
 
 ==================
 precedence: pipeline binds loosest
@@ -67,21 +93,30 @@ def r = a + b |> f;
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (pipeline_expr
           (binary_expr
             (primary
               (variable_expr
                 (identifier)))
+            (spaces)
+            (spaces)
             (primary
               (variable_expr
                 (identifier))))
+          (spaces)
+          (spaces)
           (primary
             (variable_expr
-              (identifier))))))))
+              (identifier)))))))
+  (newline))
 
 ==================
 precedence: call binds tighter than field
@@ -92,10 +127,14 @@ def r = f(a).b;
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (dot_postfix_expr
           (call_expr
             (primary
@@ -106,7 +145,8 @@ def r = f(a).b;
                 (variable_expr
                   (identifier)))))
           (projection_suffix
-            (identifier)))))))
+            (identifier))))))
+  (newline))
 
 ==================
 marked type application and positional projection
@@ -119,10 +159,14 @@ def first = pair.0;
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_apply_expr
           (primary
             (variable_expr
@@ -132,9 +176,13 @@ def first = pair.0;
               (primary
                 (variable_expr
                   (identifier))))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (index_expr
           (primary
             (variable_expr
@@ -142,15 +190,20 @@ def first = pair.0;
           (primary
             (variable_expr
               (identifier))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (dot_postfix_expr
           (primary
             (variable_expr
               (identifier)))
           (projection_suffix
-            (int_expr)))))))
+            (int_expr))))))
+  (newline))
 
 ==================
 type scheme with for parameters
@@ -161,19 +214,26 @@ def Parser : for(A) Fn(A) -> Box(Int) = fn(x) -> Int { x };
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_scheme
           (type_parameters
             (type_parameter
               (identifier)))
+          (spaces)
           (contract
             (function_contract
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
+              (spaces)
               (contract
                 (contract_expr
                   (identifier)
@@ -181,19 +241,27 @@ def Parser : for(A) Fn(A) -> Box(Int) = fn(x) -> Int { x };
                     (contract
                       (contract_expr
                         (identifier)))))))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier)))
+            (spaces)
+            (spaces)
             (primary
               (variable_expr
                 (identifier)))
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (primary
                   (variable_expr
-                    (identifier)))))))))))
+                    (identifier))))
+              (spaces)))))))
+  (newline))
 
 ==================
 static trait declarations, bounds, and implementations
@@ -216,64 +284,99 @@ impl(T: Property(DisplayBy)) Display for T {
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (trait_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (newline)
+        (spaces)
         (trait_member
           (identifier)
+          (spaces)
           (contract
             (function_contract
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
+              (spaces)
               (contract
                 (contract_expr
-                  (identifier))))))))
+                  (identifier))))))
+        (newline)))
+    (newline)
     (module_binding
       (type_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_initializer
           (struct_initializer
+            (spaces)
+            (spaces)
             (struct_initializer_field
               (identifier)
+              (spaces)
               (primary
                 (variable_expr
-                  (identifier))))))))
+                  (identifier))))
+            (spaces)))))
+    (newline)
     (module_binding
       (impl_binding
+        (spaces)
         (contract
           (contract_expr
             (identifier)))
+        (spaces)
+        (spaces)
         (contract
           (contract_expr
             (identifier)))
+        (spaces)
+        (newline)
+        (spaces)
         (impl_member
           (identifier)
+          (spaces)
           (primary
             (closure
               (parameters
                 (parameter
                   (identifier)))
+              (spaces)
               (block
+                (spaces)
                 (block_body
                   (dot_postfix_expr
                     (primary
                       (variable_expr
                         (identifier)))
                     (projection_suffix
-                      (identifier))))))))))
+                      (identifier))))
+                (spaces)))))
+        (newline)))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (type_parameters
             (type_parameter
               (identifier)
+              (spaces)
               (trait_bound
                 (contract
                   (contract_expr
                     (identifier))))
+              (spaces)
+              (spaces)
               (trait_bound
                 (contract
                   (contract_expr
@@ -282,20 +385,28 @@ impl(T: Property(DisplayBy)) Display for T {
                       (contract
                         (contract_expr
                           (identifier)))))))))
+          (spaces)
           (contract
             (function_contract
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
+              (spaces)
               (contract
                 (contract_expr
                   (identifier))))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier)))
+            (spaces)
             (block
+              (newline)
+              (spaces)
               (block_body
                 (call_expr
                   (dot_postfix_expr
@@ -307,12 +418,15 @@ impl(T: Property(DisplayBy)) Display for T {
                   (arguments
                     (primary
                       (variable_expr
-                        (identifier)))))))))))
+                        (identifier))))))
+              (newline))))))
+    (newline)
     (module_binding
       (impl_binding
         (type_parameters
           (type_parameter
             (identifier)
+            (spaces)
             (trait_bound
               (contract
                 (contract_expr
@@ -321,24 +435,39 @@ impl(T: Property(DisplayBy)) Display for T {
                     (contract
                       (contract_expr
                         (identifier)))))))))
+        (spaces)
         (contract
           (contract_expr
             (identifier)))
+        (spaces)
+        (spaces)
         (contract
           (contract_expr
             (identifier)))
+        (spaces)
+        (newline)
+        (spaces)
         (impl_member
           (identifier)
+          (spaces)
           (primary
             (closure
               (parameters
                 (parameter
                   (identifier)))
+              (spaces)
               (block
+                (spaces)
                 (block_body
                   (primary
                     (string_expr
-                      (string_literal))))))))))))
+                      (string_literal
+                        (quote_start)
+                        (string_text)
+                        (quote_end)))))
+                (spaces)))))
+        (newline))))
+  (newline))
 
 ==================
 concat string with interpolation
@@ -349,10 +478,14 @@ def name = `hello \{who} world`;
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (primary
           (concat_string
             (concat_fragment)
@@ -360,7 +493,8 @@ def name = `hello \{who} world`;
               (primary
                 (variable_expr
                   (identifier))))
-            (concat_fragment)))))))
+            (concat_fragment))))))
+  (newline))
 
 ==================
 call section with placeholders
@@ -371,10 +505,14 @@ def s = transform\(_1, 123, _0);
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (section_expr
           (primary
             (variable_expr
@@ -382,16 +520,15 @@ def s = transform\(_1, 123, _0);
           (section_arguments
             (section_lparen)
             (argument
-              (primary
-                (variable_expr
-                  (identifier))))
+              (indexed_placeholder))
+            (spaces)
             (argument
               (primary
                 (int_expr)))
+            (spaces)
             (argument
-              (primary
-                (variable_expr
-                  (identifier))))))))))
+              (indexed_placeholder)))))))
+  (newline))
 
 ==================
 declared struct and enum initializers
@@ -413,6 +550,7 @@ type CallExpr = struct { args: Array(Expr) };
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (type_binding
@@ -424,9 +562,16 @@ type CallExpr = struct { args: Array(Expr) };
             (primary
               (variable_expr
                 (identifier)))))
+        (newline)
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_initializer
           (struct_initializer
+            (spaces)
+            (newline)
+            (spaces)
             (struct_initializer_field
               (decorator
                 (decorator_path
@@ -435,26 +580,45 @@ type CallExpr = struct { args: Array(Expr) };
                 (arguments
                   (primary
                     (string_expr
-                      (string_literal)))))
+                      (string_literal
+                        (quote_start)
+                        (string_text)
+                        (quote_end))))))
+              (spaces)
               (identifier)
+              (spaces)
               (primary
                 (variable_expr
                   (identifier))))
+            (newline)
+            (spaces)
             (struct_initializer_field
               (identifier)
+              (spaces)
               (primary
                 (variable_expr
-                  (identifier))))))))
+                  (identifier))))
+            (newline)))))
+    (newline)
+    (newline)
     (module_binding
       (type_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_initializer
           (enum_initializer
+            (spaces)
+            (newline)
+            (spaces)
             (enum_initializer_variant
               (identifier)
               (primary
                 (variable_expr
                   (identifier))))
+            (newline)
+            (spaces)
             (enum_initializer_variant
               (decorator
                 (decorator_path
@@ -463,18 +627,31 @@ type CallExpr = struct { args: Array(Expr) };
                 (arguments
                   (primary
                     (string_expr
-                      (string_literal)))))
+                      (string_literal
+                        (quote_start)
+                        (string_text)
+                        (quote_end))))))
+              (spaces)
               (identifier)
               (primary
                 (variable_expr
-                  (identifier))))))))
+                  (identifier))))
+            (newline)))))
+    (newline)
+    (newline)
     (module_binding
       (type_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_initializer
           (struct_initializer
+            (spaces)
+            (spaces)
             (struct_initializer_field
               (identifier)
+              (spaces)
               (call_expr
                 (primary
                   (variable_expr
@@ -482,7 +659,9 @@ type CallExpr = struct { args: Array(Expr) };
                 (arguments
                   (primary
                     (variable_expr
-                      (identifier))))))))))))
+                      (identifier))))))
+            (spaces))))))
+  (newline))
 
 ==================
 current operators and postfix forms
@@ -495,10 +674,14 @@ def branch = if first { 1 } else if let Some(x) = value { x } else match other {
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (dot_postfix_expr
           (dot_postfix_expr
             (dot_postfix_expr
@@ -517,15 +700,24 @@ def branch = if first { 1 } else if let Some(x) = value { x } else match other {
             (arguments
               (primary
                 (string_expr
-                  (string_literal))))))))
+                  (string_literal
+                    (quote_start)
+                    (string_text)
+                    (quote_end)))))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (binary_expr
           (unary_expr
             (primary
               (variable_expr
                 (identifier))))
+          (spaces)
+          (spaces)
           (binary_expr
             (primary
               (paren_expr
@@ -540,57 +732,94 @@ def branch = if first { 1 } else if let Some(x) = value { x } else match other {
                                 (primary
                                   (variable_expr
                                     (identifier)))
+                                (spaces)
+                                (spaces)
                                 (primary
                                   (int_expr)))
+                              (spaces)
+                              (spaces)
                               (primary
                                 (variable_expr
                                   (identifier)))))))
+                      (spaces)
+                      (spaces)
                       (primary
                         (variable_expr
                           (identifier))))
+                    (spaces)
+                    (spaces)
                     (primary
                       (variable_expr
                         (identifier)))))))
+            (spaces)
+            (spaces)
             (primary
               (int_expr))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (primary
           (if_expr
+            (spaces)
             (primary
               (variable_expr
                 (identifier)))
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (primary
-                  (int_expr))))
+                  (int_expr)))
+              (spaces))
+            (spaces)
+            (spaces)
             (ctrl_block
               (if_let_expr
+                (spaces)
+                (spaces)
                 (constructor_pattern
                   (identifier)
-                  (constructor_pattern
+                  (identifier_pattern
                     (identifier)))
+                (spaces)
+                (spaces)
                 (primary
                   (variable_expr
                     (identifier)))
+                (spaces)
                 (block
+                  (spaces)
                   (block_body
                     (primary
                       (variable_expr
-                        (identifier)))))
+                        (identifier))))
+                  (spaces))
+                (spaces)
+                (spaces)
                 (ctrl_block
                   (match_expr
+                    (spaces)
                     (primary
                       (variable_expr
                         (identifier)))
+                    (spaces)
+                    (spaces)
                     (match_arm
-                      (constructor_pattern
+                      (identifier_pattern
                         (identifier))
+                      (spaces)
+                      (spaces)
                       (primary
                         (return_expr
+                          (spaces)
                           (primary
-                            (int_expr)))))))))))))))
+                            (int_expr)))))
+                    (spaces))))))))))
+  (newline))
 
 ==================
 do block module initializer
@@ -601,25 +830,40 @@ def answer: Int = do { let base = 40; base + 2 };
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (contract
             (contract_expr
               (identifier))))
+        (spaces)
+        (spaces)
         (primary
           (do_expr
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (let_binding
+                  (spaces)
                   (identifier)
+                  (spaces)
+                  (spaces)
                   (primary
                     (int_expr)))
+                (spaces)
                 (binary_expr
                   (primary
                     (variable_expr
                       (identifier)))
+                  (spaces)
+                  (spaces)
                   (primary
-                    (int_expr)))))))))))
+                    (int_expr))))
+              (spaces)))))))
+  (newline))

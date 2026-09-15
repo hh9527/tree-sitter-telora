@@ -8,15 +8,24 @@ def value = r#"ok"## comment
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (primary
           (string_expr
             (string_literal
-              (raw_string))))
-        (comment)))))
+              (raw_string
+                (raw_start)
+                (raw_text)
+                (raw_end)))))
+        (comment)
+        (newline))))
+  (newline))
 
 ==================
 Maximum raw string delimiter
@@ -27,11 +36,19 @@ def value = r###################################################################
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (primary
           (string_expr
             (string_literal
-              (raw_string))))))))
+              (raw_string
+                (raw_start)
+                (raw_text)
+                (raw_end))))))))
+  (newline))

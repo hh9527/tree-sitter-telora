@@ -3,38 +3,34 @@
  *
  * DESIGN NOTES
  * -----------
- * This grammar is a *lossless-tolerant editor view* of the authoritative
- * Lelwel CST (crates/telora-core/src/syntax/telora/grammar.llw). Node names
- * mirror the Lelwel Rule names (call_expr, binary_expr, section_expr, ...)
- * so tooling can be shared; see "node-name mapping" below for the few
- * deviations.
+ * This grammar serves editor tooling and the experimental compiler frontend.
+ * It preserves lexical structure and incomplete syntax for structural
+ * diagnostics. The compiler currently projects nodes into its flat semantic
+ * CST vocabulary; see "node-name mapping" below for wrapper differences.
  *
  * TOKEN / SCANNER BOUNDARY
  * ------------------------
- * Tree-sitter token rules are regular expressions; Telora has two lexical
- * constructs that need the external scanner in src/scanner.c:
+ * Tree-sitter token rules are regular expressions; the external scanner in
+ * src/scanner.c handles:
  *
  *   section_lparen   '\('   -- a two-character token
- *   raw_string       r#"..."# -- terminating '#' count must match the
- *                            opening count (see scan_raw_string in
- *                            lexer.rs:271), which is not regular
+ *   raw_start/text/end -- terminating '#' count must match the opening count.
+ *                        The scanner serializes that count and chunks content.
  *
  * Everything else is a plain regex or anonymous token, including:
  *
- *   concat string    '`...`' -> anonymous backticks + a regex fragment token
+ *   concat string    '`...`' -> anonymous backticks + text and escape tokens
  *                               + anonymous '\{' '}' interpolation markers.
  *   This mirrors how JS template literals work: the parser's LR states keep
  *   interpolation and nested braces/strings apart, with no scanner state.
- *   (A stateful scanner cannot work here: tree-sitter discards scanner-state
- *   changes made when the scanner returns false, so mode machines cannot
- *   persist across tokens.)
+ *   Raw string state changes only on accepted tokens, so speculative parsing
+ *   can restore the previous scanner state.
  *
  * placeholders     -- '_' vs '_0' vs identifier (longest-match resolves)
  *
  * PRECEDENCE
  * ----------
- * Relative ordering follows the Lelwel expression rule. The numeric
- * precedences below are defined in the expression rules; higher = tighter.
+ * Numeric precedences are defined in the expression rules; higher = tighter.
  *
  *   propagate '?'       30    field '.'         20
  *   call '()'           28    unary '-'         18
@@ -49,17 +45,17 @@
  *
  * So `a + b |> f` parses as `(a + b) |> f`. All binary ops are left-assoc.
  *
- * NODE-NAME MAPPING (deviations from Lelwel)
+ * NODE-NAME MAPPING (compiler semantic CST)
  * ------------------------------------------
  *   program                        -> source_file (tree-sitter root requirement)
  *   body                           -> module_body
  *   concat_expression @string_expr -> concat_string (kept distinct so the
  *                                    interpolation children are visible)
- *   string_literal @string_expr    -> string_expr (matches Lelwel)
+ *   string_literal @string_expr    -> string_expr
  *   primary (leaf)                 -> primary is a hidden/choice layer; the
- *                                    Lelwel @-tags (int_expr, ...) are the
+ *                                    expression kinds (int_expr, ...) are the
  *                                    produced node kinds
- *   '_' wildcard in a pattern      -> identifier_pattern (Lelwel folds both)
+ *   '_' wildcard in a pattern      -> identifier_pattern
  */
 
 module.exports = grammar({
@@ -69,12 +65,15 @@ module.exports = grammar({
   // still materialize as nodes so highlight/fold queries can see them.
   extras: $ => [
     $.comment,
-    /\s/,
+    $.spaces,
+    $.tabs,
+    $.newline,
+    /[\v\f]/,
   ],
 
   word: $ => $.identifier,
 
-  // `{...}` is a dict when it can be (Lelwel braced priority ?1); the same
+  // `{...}` is a dict when it can be; the same
   // brace sequence can also start a block. tree-sitter keeps both parses and
   // the first-listed alternative (dict_expr) wins.
   conflicts: $ => [
@@ -85,7 +84,9 @@ module.exports = grammar({
 
   externals: $ => [
     $.section_lparen,   // '\(' — two-char token
-    $.raw_string,       // r#"..."# — hash-counted, needs the scanner
+    $.raw_start,
+    $.raw_text,
+    $.raw_end,
   ],
 
   supertypes: $ => [
@@ -97,7 +98,10 @@ module.exports = grammar({
   rules: {
     source_file: $ => optional($.module_body),
 
-    module_body: $ => choice(seq(repeat1($.module_binding), optional($.expression)), $.expression),
+    module_body: $ => choice(
+      seq(repeat1(choice($.module_binding, $.expression_statement)), optional($.expression)),
+      $.expression,
+    ),
 
     block_body: $ => choice(
       seq(repeat1(choice($.binding, $.expression_statement)), optional($.expression)),
@@ -108,14 +112,17 @@ module.exports = grammar({
 
     // ---------------------------------------------------------------- lexical
     comment: $ => /#[^\r\n]*/,
+    spaces: $ => / +/,
+    tabs: $ => /\t+/,
+    newline: $ => /\r\n|\r|\n/,
 
-    identifier: $ => /[A-Za-z_][A-Za-z0-9_]*/,
+    identifier: $ => /[A-Za-z][A-Za-z0-9_]*|_[0-9]*[A-Za-z_][A-Za-z0-9_]*/,
 
     // '_' and '_N' must be declared before identifier so a lone '_' is not
     // swallowed by the identifier regex (tree-sitter prefers the earlier
     // rule on equal-length matches; longer matches win elsewhere).
     placeholder: $ => token(prec(1, '_')),
-    indexed_placeholder: $ => /_[0-9]+/,
+    indexed_placeholder: $ => token(prec(1, /_[0-9]+/)),
 
     // ---------------------------------------------------------------- bindings
     module_binding: $ => choice(
@@ -135,7 +142,7 @@ module.exports = grammar({
 
     binding: $ => choice(
       $.export_statement,
-      // ordered to mirror Lelwel ?N priorities (else > pattern > plain)
+      // Binding forms: else > pattern > plain.
       $.let_else_binding,
       $.let_pattern_binding,
       $.let_binding,
@@ -156,14 +163,15 @@ module.exports = grammar({
     export_items: $ => seq('{', optional(seq($.export_item, repeat(seq(',', $.export_item)), optional(','))), '}'),
     export_item: $ => seq($.identifier, optional(seq('as', $.identifier))),
 
-    let_binding: $ => prec(2, seq('let', $.identifier, optional(seq(':', $.expression)), '=', $.expression, ';')),
+    // Missing slots stay absent; structural diagnostics identify them later.
+    let_binding: $ => prec(2, seq('let', optional($.identifier), optional(seq(':', $.expression)), '=', optional($.expression), ';')),
     let_pattern_binding: $ => seq('let', $.pattern, '=', $.expression, ';'),
     let_else_binding: $ => prec(2, seq('let', choice(seq($.identifier, optional(seq(':', $.expression))), $.pattern), '=', $.expression, 'else', $.block, ';')),
 
     decl_binding: $ => seq('decl', $.identifier, ':', $.type_scheme, ';'),
     def_binding: $ => seq('def', $.identifier, optional(seq(':', $.type_scheme)), '=', $.expression, ';'),
     native_binding: $ => seq('native', $.identifier, ':', $.type_scheme, ';'),
-    native_type_binding: $ => seq('native', 'type', $.identifier, '@', /[0-9]+/, ';'),
+    native_type_binding: $ => seq('native', 'type', $.identifier, '@', $.int_expr, ';'),
 
     type_binding: $ => seq(repeat($.decorator), 'type', $.identifier, optional($.type_parameters), '=', $.type_initializer, ';'),
     type_initializer: $ => choice($.struct_initializer, $.enum_initializer, $.expression),
@@ -220,7 +228,7 @@ module.exports = grammar({
     // ---------------------------------------------------------------- types
     type_scheme: $ => seq(optional(seq('for', $.type_parameters)), $.contract),
     type_parameters: $ => seq('(', $.type_parameter, repeat(seq(',', $.type_parameter)), optional(','), ')'),
-    type_parameter: $ => prec(1, seq(
+    type_parameter: $ => prec(29, seq(
       $.identifier,
       optional(seq(':', $.trait_bound, repeat(seq('+', $.trait_bound)))),
     )),
@@ -230,7 +238,7 @@ module.exports = grammar({
       $.function_contract,
       $.unit_contract,
     ),
-    contract_expr: $ => prec.left(1, seq(
+    contract_expr: $ => prec.right(29, seq(
       $.identifier,
       repeat(seq('.', $.identifier)),
       optional(seq('(', optional(seq($.contract_argument, repeat(seq(',', $.contract_argument)), optional(','))), ')')),
@@ -238,7 +246,11 @@ module.exports = grammar({
     contract_argument: $ => choice($.contract, $.contract_array),
     unit_contract: $ => seq('(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')'),
     contract_array: $ => seq('[', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ']'),
-    function_contract: $ => seq('Fn', '(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')', '->', $.contract),
+    function_contract: $ => prec.right(seq('Fn', '(', optional(seq(
+      choice($.contract, $.invalid_function_parameter),
+      repeat(seq(',', choice($.contract, $.invalid_function_parameter))), optional(','))),
+      ')', optional(seq('->', $.contract)))),
+    invalid_function_parameter: $ => $.contract_array,
 
     // ---------------------------------------------------------------- expression
     expression: $ => choice(
@@ -278,7 +290,7 @@ module.exports = grammar({
     type_apply_expr: $ => prec(26, seq($.expression, '@', $.type_arguments)),
     index_expr: $ => prec(24, seq($.expression, '[', $.expression, ']')),
     section_expr: $ => prec(22, seq($.expression, $.section_arguments)),
-    dot_postfix_expr: $ => prec(20, seq($.expression, '.', choice($.postfix_intrinsic_suffix, $.projection_suffix, $.metadata_suffix, $.field_projection_suffix))),
+    dot_postfix_expr: $ => prec.right(20, seq($.expression, '.', optional(choice($.postfix_intrinsic_suffix, $.projection_suffix, $.metadata_suffix, $.field_projection_suffix)))),
     field_projection_suffix: $ => seq('{', optional(seq($.field_projection_entry, repeat(seq(',', $.field_projection_entry)), optional(','))), '}'),
     field_projection_entry: $ => seq($.identifier, optional(seq('as', $.identifier))),
     metadata_suffix: $ => 'type',
@@ -323,7 +335,7 @@ module.exports = grammar({
     array_item: $ => choice($.spread_item, $.expression),
     spread_item: $ => seq('...', $.expression),
 
-    dict_expr: $ => seq('{', optional(seq($.dict_item, repeat(seq(',', $.dict_item)), optional(','))), '}'),
+    dict_expr: $ => prec.dynamic(1, seq('{', optional(seq($.dict_item, repeat(seq(',', $.dict_item)), optional(','))), '}')),
     dict_item: $ => choice($.spread_item, $.dict_field),
     dict_field: $ => choice(
       prec(1, $.identifier), // shorthand `{name}` — preferred over a bare block expression
@@ -347,7 +359,7 @@ module.exports = grammar({
     if_expr: $ => seq('if', $.expression, $.block, 'else', $.ctrl_block),
     if_let_expr: $ => seq('if', 'let', $.pattern, '=', $.expression, $.block, 'else', $.ctrl_block),
     match_expr: $ => seq('match', $.expression, '{', optional(seq($.match_arm, repeat(seq(',', $.match_arm)), optional(','))), '}'),
-    match_arm: $ => seq($.pattern, optional(seq('if', $.expression)), '=>', $.expression),
+    match_arm: $ => seq($.pattern, choice(seq('if', $.expression, '=>'), optional('=>')), $.expression),
     return_expr: $ => seq('return', $.expression, ';'),
 
     // ---------------------------------------------------------------- patterns
@@ -364,19 +376,27 @@ module.exports = grammar({
     int_pattern: $ => /[0-9]+/,
     float_pattern: $ => /[0-9]+(\.[0-9]+([eE][+-]?[0-9]+)?|[eE][+-]?[0-9]+)/,
     string_pattern: $ => $.string_literal,
-    constructor_pattern: $ => prec(1, seq($.identifier, repeat(seq('.', $.identifier)), optional(seq('(', $.pattern, ')')))),
+    constructor_pattern: $ => prec.right(1, seq($.identifier, choice(
+      seq(repeat1(seq('.', $.identifier)), optional(seq('(', $.pattern, ')'))),
+      seq('(', $.pattern, ')'),
+    ))),
     tuple_pattern: $ => seq('(', optional(seq($.pattern, repeat(seq(',', $.pattern)), optional(','))), ')'),
     struct_pattern: $ => seq('{', optional(seq($.struct_pattern_field, repeat(seq(',', $.struct_pattern_field)), optional(','))), '}'),
     struct_pattern_field: $ => seq($.identifier, optional(seq(':', $.pattern))),
 
     // ---------------------------------------------------------------- strings
-    // double-quoted: no interpolation, regular token. escapes are opaque here;
-    // splitting them into StringText/EscapeSequence parts is a future
-    // refinement for escape-sequence highlighting.
+    // Keep lexical structure even when an escape is invalid. Validation and
+    // decoding belong to later stages. Immediate tokens keep whitespace and
+    // comment-like text inside the string rather than treating them as extras.
     string_literal: $ => choice(
-      /"([^"\\]|\\(0|[nrt"\\]|x[0-9A-Fa-f]{2}|u\{[0-9A-Fa-f]{1,6}\}|\r?\n[ \t\r\n]*))*"/,
+      seq($.quote_start, repeat(choice($.string_text, $.escape_sequence)), $.quote_end),
       $.raw_string,
     ),
+    quote_start: $ => '"',
+    raw_string: $ => seq($.raw_start, repeat($.raw_text), $.raw_end),
+    quote_end: $ => token.immediate('"'),
+    string_text: $ => token.immediate(prec(1, /[^"\\]+/)),
+    escape_sequence: $ => token.immediate(/\\(u\{[^}"\r\n]*\}?|x[0-9A-Fa-f]{0,2}|[\u0009-\u000d\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+|[^\r\n])?/),
 
     // backtick concatenation string. Anonymous '`' and '\{' '}' delimit the
     // segments; the fragment regex matches text/escapes and stops at the
@@ -385,10 +405,11 @@ module.exports = grammar({
     // expressions apart without any external-scanner state.
     concat_string: $ => seq(
       '`',
-      repeat(choice($.concat_fragment, $.interpolation)),
+      repeat(choice($.concat_fragment, alias($.concat_escape, $.escape_sequence), $.interpolation)),
       '`',
     ),
-    concat_fragment: $ => /([^`\\]|\\(0|[nrt`\\]|x[0-9A-Fa-f]{2}|u\{[0-9A-Fa-f]{1,6}\}|\r?\n[ \t\r\n]*)|\\[^`{])+/,
+    concat_fragment: $ => token.immediate(prec(1, /[^`\\]+/)),
+    concat_escape: $ => token.immediate(/\\(u\{[^}`\r\n]*\}?|x[0-9A-Fa-f]{0,2}|[\u0009-\u000d\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+|[^{\r\n])?/),
     interpolation: $ => seq('\\{', $.expression, '}'),
   },
 });

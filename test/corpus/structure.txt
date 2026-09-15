@@ -7,41 +7,57 @@ def curry: Fn(Int) -> Fn(String) -> Bool = fn(x) { fn(y) { True } };
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (contract
             (function_contract
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
+              (spaces)
               (contract
                 (function_contract
                   (contract
                     (contract_expr
                       (identifier)))
+                  (spaces)
+                  (spaces)
                   (contract
                     (contract_expr
                       (identifier))))))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier)))
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (primary
                   (closure
                     (parameters
                       (parameter
                         (identifier)))
+                    (spaces)
                     (block
+                      (spaces)
                       (block_body
                         (primary
                           (variable_expr
-                            (identifier)))))))))))))))
+                            (identifier))))
+                      (spaces)))))
+              (spaces)))))))
+  (newline))
 
 ==================
 Patterns, bindings, and postfix ordering
@@ -60,64 +76,103 @@ def f = fn(input) {
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier)))
+            (spaces)
             (block
+              (newline)
+              (spaces)
               (block_body
                 (let_binding
+                  (spaces)
                   (identifier)
+                  (spaces)
+                  (spaces)
                   (primary
                     (variable_expr
                       (identifier))))
+                (newline)
+                (spaces)
                 (let_binding
+                  (spaces)
                   (identifier)
+                  (spaces)
                   (primary
                     (variable_expr
                       (identifier)))
+                  (spaces)
+                  (spaces)
                   (primary
                     (variable_expr
                       (identifier))))
+                (newline)
+                (spaces)
                 (let_else_binding
+                  (spaces)
                   (constructor_pattern
                     (identifier)
-                    (constructor_pattern
+                    (identifier_pattern
                       (identifier)))
+                  (spaces)
+                  (spaces)
                   (primary
                     (variable_expr
                       (identifier)))
+                  (spaces)
+                  (spaces)
                   (block
+                    (spaces)
                     (block_body
                       (primary
                         (return_expr
+                          (spaces)
                           (primary
-                            (int_expr)))))))
+                            (int_expr)))))
+                    (spaces)))
+                (newline)
+                (spaces)
                 (primary
                   (match_expr
+                    (spaces)
                     (primary
                       (variable_expr
                         (identifier)))
+                    (spaces)
+                    (newline)
+                    (spaces)
                     (match_arm
                       (constructor_pattern
                         (identifier)
                         (identifier)
                         (tuple_pattern
-                          (constructor_pattern
+                          (identifier_pattern
                             (identifier))
-                          (constructor_pattern
+                          (spaces)
+                          (identifier_pattern
                             (identifier))))
+                      (spaces)
+                      (spaces)
                       (binary_expr
                         (primary
                           (variable_expr
                             (identifier)))
+                        (spaces)
+                        (spaces)
                         (primary
                           (int_expr)))
+                      (spaces)
+                      (spaces)
                       (propagate_expr
                         (index_expr
                           (dot_postfix_expr
@@ -133,11 +188,19 @@ def f = fn(input) {
                               (identifier)))
                           (primary
                             (int_expr)))))
+                    (newline)
+                    (spaces)
                     (match_arm
                       (identifier_pattern
                         (placeholder))
+                      (spaces)
+                      (spaces)
                       (primary
-                        (int_expr)))))))))))))
+                        (int_expr)))
+                    (newline)
+                    (spaces))))
+              (newline)))))))
+  (newline))
 
 ==================
 Interpolation preserves nested syntax
@@ -148,10 +211,14 @@ def text = `before \{fn(x) { {value: r#"}"#} }.type} after`;
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (primary
           (concat_string
             (concat_fragment)
@@ -162,16 +229,24 @@ def text = `before \{fn(x) { {value: r#"}"#} }.type} after`;
                     (parameters
                       (parameter
                         (identifier)))
+                    (spaces)
                     (block
+                      (spaces)
                       (block_body
                         (primary
                           (dict_expr
                             (dict_item
                               (dict_field
                                 (identifier)
+                                (spaces)
                                 (primary
                                   (string_expr
                                     (string_literal
-                                      (raw_string))))))))))))
+                                      (raw_string
+                                        (raw_start)
+                                        (raw_text)
+                                        (raw_end))))))))))
+                      (spaces))))
                 (metadata_suffix)))
-            (concat_fragment)))))))
+            (concat_fragment))))))
+  (newline))

@@ -9,57 +9,89 @@ def result = do { 1; let a = 2; a };
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (contract
             (function_contract
+              (spaces)
+              (spaces)
               (contract
                 (unit_contract)))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters)
+            (spaces)
             (block)))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (contract
             (function_contract
               (contract
                 (unit_contract))
+              (spaces)
+              (spaces)
               (contract
                 (contract_expr
                   (identifier))))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier)
+                (spaces)
                 (primary
                   (paren_expr))))
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (expression_statement
                   (primary
                     (variable_expr
-                      (identifier))))))))))
+                      (identifier)))))
+              (spaces))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (primary
           (do_expr
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (expression_statement
                   (primary
                     (int_expr)))
+                (spaces)
                 (let_binding
+                  (spaces)
                   (identifier)
+                  (spaces)
+                  (spaces)
                   (primary
                     (int_expr)))
+                (spaces)
                 (primary
                   (variable_expr
-                    (identifier)))))))))))
+                    (identifier))))
+              (spaces)))))))
+  (newline))

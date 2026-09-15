@@ -1,0 +1,35 @@
+==================
+Empty raw string has delimiters without content
+==================
+r##""##
+---
+(source_file
+  (module_body
+    (primary
+      (string_expr
+        (string_literal
+          (raw_string (raw_start) (raw_end)))))))
+
+==================
+Short delimiter and escapes remain raw content
+==================
+r##"a"#\n # b"##
+---
+(source_file
+  (module_body
+    (primary
+      (string_expr
+        (string_literal
+          (raw_string (raw_start) (raw_text) (raw_end)))))))
+
+==================
+Unclosed raw string retains content
+==================
+r##"unfinished
+---
+(source_file
+  (module_body
+    (primary
+      (string_expr
+        (string_literal
+          (raw_string (raw_start) (raw_text) (MISSING raw_end)))))))

@@ -1,0 +1,49 @@
+==================
+Call owns closing parenthesis when its array argument misses bracket
+==================
+f([1,2)
+---
+(source_file
+  (module_body
+    (call_expr
+      (primary (variable_expr (identifier)))
+      (arguments
+        (primary
+          (array_expr
+            (array_item (primary (int_expr)))
+            (array_item (primary (int_expr)))
+            (MISSING "]")))))))
+
+==================
+Nearest group owns the only closing parenthesis
+==================
+f((1)
+---
+(source_file
+  (module_body
+    (call_expr
+      (primary (variable_expr (identifier)))
+      (arguments
+        (primary (paren_expr (array_item (primary (int_expr)))))
+        (MISSING ")")))))
+
+==================
+Extra bracket stays inside call and preserves the next declaration
+==================
+let a = f(1]); let b = 2; b
+---
+(source_file
+  (module_body
+    (module_binding
+      (let_binding
+        (spaces) (identifier) (spaces) (spaces)
+        (call_expr
+          (primary (variable_expr (identifier)))
+          (arguments (primary (int_expr)) (ERROR)))))
+    (spaces)
+    (module_binding
+      (let_binding
+        (spaces) (identifier) (spaces) (spaces)
+        (primary (int_expr))))
+    (spaces)
+    (primary (variable_expr (identifier)))))

@@ -1,0 +1,32 @@
+==================
+String content and escapes retain lexical structure
+==================
+"a\r\nb"
+---
+(source_file
+  (module_body
+    (primary
+      (string_expr
+        (string_literal
+          (quote_start)
+          (string_text)
+          (escape_sequence)
+          (escape_sequence)
+          (string_text)
+          (quote_end))))))
+
+==================
+Unknown escapes and comment-like content remain inside the string
+==================
+" \( # text	 "
+---
+(source_file
+  (module_body
+    (primary
+      (string_expr
+        (string_literal
+          (quote_start)
+          (string_text)
+          (escape_sequence)
+          (string_text)
+          (quote_end))))))

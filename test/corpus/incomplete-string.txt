@@ -1,0 +1,15 @@
+==================
+Unclosed string retains text and escapes
+==================
+"unfinished\ntext
+---
+(source_file
+  (module_body
+    (primary
+      (string_expr
+        (string_literal
+          (quote_start)
+          (string_text)
+          (escape_sequence)
+          (string_text)
+          (MISSING quote_end))))))

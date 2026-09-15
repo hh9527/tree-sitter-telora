@@ -20,138 +20,210 @@ def spread: (Int, Int) = (...pair,);
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (import_binding
-        (string_literal)
+        (spaces)
+        (string_literal
+          (quote_start)
+          (string_text)
+          (quote_end))
+        (spaces)
         (import_selector
+          (spaces)
           (identifier))))
+    (newline)
     (module_binding
       (import_binding
+        (spaces)
         (member_selector
           (identifier)
           (import_items
             (import_item
               (identifier))
+            (spaces)
             (import_item
               (identifier))
+            (spaces)
             (import_item
               (identifier))))))
+    (newline)
     (module_binding
       (export_statement
+        (spaces)
         (member_selector
           (identifier)
           (import_items
             (import_item
               (identifier)
+              (spaces)
+              (spaces)
               (identifier))))))
+    (newline)
     (module_binding
       (type_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_initializer
           (struct_initializer
             (primary
               (variable_expr
                 (identifier)))))))
+    (newline)
     (module_binding
       (type_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_initializer
           (enum_initializer
+            (spaces)
+            (spaces)
             (enum_initializer_variant
               (identifier))
+            (spaces)
             (enum_initializer_variant
               (identifier)
               (primary
                 (variable_expr
-                  (identifier))))))))
+                  (identifier))))
+            (spaces)))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (contract
             (function_contract
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
+              (spaces)
               (contract
                 (contract_expr
                   (identifier))))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier)))
+            (spaces)
             (block
+              (newline)
+              (spaces)
               (block_body
                 (primary
                   (match_expr
+                    (spaces)
                     (primary
                       (variable_expr
                         (identifier)))
+                    (spaces)
+                    (newline)
+                    (spaces)
                     (match_arm
                       (constructor_pattern
                         (identifier)
                         (identifier)
-                        (constructor_pattern
+                        (identifier_pattern
                           (identifier)))
+                      (spaces)
+                      (spaces)
                       (primary
                         (variable_expr
                           (identifier))))
+                    (newline)
+                    (spaces)
                     (match_arm
                       (constructor_pattern
                         (identifier)
                         (identifier))
+                      (spaces)
+                      (spaces)
                       (primary
-                        (int_expr)))))))))))
+                        (int_expr)))
+                    (newline)
+                    (spaces))))
+              (newline))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (contract
             (function_contract
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
+              (spaces)
               (contract
                 (contract_expr
                   (identifier))))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier)))
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (binary_expr
                   (primary
                     (variable_expr
                       (identifier)))
+                  (spaces)
+                  (spaces)
                   (primary
                     (dict_expr
                       (dict_item
                         (dict_field
                           (identifier)
+                          (spaces)
                           (primary
-                            (int_expr)))))))))))))
+                            (int_expr))))))))
+              (spaces))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (contract
             (function_contract
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
+              (spaces)
               (contract
                 (contract_expr
                   (identifier))))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier)))
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (dot_postfix_expr
                   (primary
@@ -160,26 +232,36 @@ def spread: (Int, Int) = (...pair,);
                   (field_projection_suffix
                     (field_projection_entry
                       (identifier)
-                      (identifier))))))))))
+                      (spaces)
+                      (spaces)
+                      (identifier)))))
+              (spaces))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (contract
             (unit_contract
               (contract
                 (contract_expr
                   (identifier)))
+              (spaces)
               (contract
                 (contract_expr
                   (identifier))))))
+        (spaces)
+        (spaces)
         (primary
           (paren_expr
             (array_item
               (spread_item
                 (primary
                   (variable_expr
-                    (identifier)))))))))))
+                    (identifier))))))))))
+  (newline))
 
 ==================
 Record update precedence
@@ -190,10 +272,14 @@ def update = a | b <~ c == d |> f;
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (pipeline_expr
           (binary_expr
             (binary_expr
@@ -201,15 +287,24 @@ def update = a | b <~ c == d |> f;
                 (primary
                   (variable_expr
                     (identifier)))
+                (spaces)
+                (spaces)
                 (primary
                   (variable_expr
                     (identifier))))
+              (spaces)
+              (spaces)
               (primary
                 (variable_expr
                   (identifier))))
+            (spaces)
+            (spaces)
             (primary
               (variable_expr
                 (identifier))))
+          (spaces)
+          (spaces)
           (primary
             (variable_expr
-              (identifier))))))))
+              (identifier)))))))
+  (newline))

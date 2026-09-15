@@ -11,10 +11,14 @@ def unit = ().type;
 ---
 
 (source_file
+  (newline)
   (module_body
     (module_binding
       (type_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (type_initializer
           (primary
             (paren_expr
@@ -22,13 +26,17 @@ def unit = ().type;
                 (primary
                   (variable_expr
                     (identifier))))
+              (spaces)
               (array_item
                 (primary
                   (variable_expr
                     (identifier)))))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
         (type_scheme
           (contract
             (function_contract
@@ -37,23 +45,31 @@ def unit = ().type;
                   (contract
                     (contract_expr
                       (identifier)))
+                  (spaces)
                   (contract
                     (contract_expr
                       (identifier)))))
+              (spaces)
+              (spaces)
               (contract
                 (unit_contract
                   (contract
                     (contract_expr
                       (identifier)))
+                  (spaces)
                   (contract
                     (contract_expr
                       (identifier))))))))
+        (spaces)
+        (spaces)
         (primary
           (closure
             (parameters
               (parameter
                 (identifier)))
+            (spaces)
             (block
+              (spaces)
               (block_body
                 (primary
                   (paren_expr
@@ -64,16 +80,22 @@ def unit = ().type;
                             (identifier)))
                         (projection_suffix
                           (int_expr))))
+                    (spaces)
                     (array_item
                       (dot_postfix_expr
                         (primary
                           (variable_expr
                             (identifier)))
                         (projection_suffix
-                          (int_expr))))))))))))
+                          (int_expr)))))))
+              (spaces))))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (dot_postfix_expr
           (primary
             (paren_expr
@@ -81,14 +103,19 @@ def unit = ().type;
                 (primary
                   (variable_expr
                     (identifier))))
+              (spaces)
               (array_item
                 (primary
                   (variable_expr
                     (identifier))))))
           (metadata_suffix))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (dot_postfix_expr
           (dot_postfix_expr
             (primary
@@ -97,10 +124,15 @@ def unit = ().type;
             (projection_suffix
               (identifier)))
           (metadata_suffix))))
+    (newline)
     (module_binding
       (def_binding
+        (spaces)
         (identifier)
+        (spaces)
+        (spaces)
         (dot_postfix_expr
           (primary
             (paren_expr))
-          (metadata_suffix))))))
+          (metadata_suffix)))))
+  (newline))

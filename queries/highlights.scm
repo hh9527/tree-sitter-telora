@@ -35,6 +35,7 @@
 (raw_string) @string
 (concat_string) @string
 (concat_fragment) @string
+(escape_sequence) @string.escape
 (bytes_expr) @string
 
 (constructor_pattern (identifier) @constant)
