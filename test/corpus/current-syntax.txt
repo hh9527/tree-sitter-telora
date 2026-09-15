@@ -1,0 +1,215 @@
+==================
+Member selectors, constructor patterns, and record operations
+==================
+
+import "std/result" as result;
+import result.{Result, Ok, Err};
+export result.{Result as Outcome};
+type Box = struct(Int);
+type Choice = enum { Empty, Full(Int) };
+def inspect: Fn(Choice) -> Int = fn(value) {
+  match value {
+    Choice.Full(x) => x,
+    Choice.Empty => 0,
+  }
+};
+def update: Fn(Box) -> Box = fn(value) { value <~ {count: 1} };
+def project: Fn(Box) -> Box = fn(value) { value.{count as total} };
+def spread: (Int, Int) = (...pair,);
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (import_binding
+        (string_literal)
+        (import_selector
+          (identifier))))
+    (module_binding
+      (import_binding
+        (member_selector
+          (identifier)
+          (import_items
+            (import_item
+              (identifier))
+            (import_item
+              (identifier))
+            (import_item
+              (identifier))))))
+    (module_binding
+      (export_statement
+        (member_selector
+          (identifier)
+          (import_items
+            (import_item
+              (identifier)
+              (identifier))))))
+    (module_binding
+      (type_binding
+        (identifier)
+        (type_initializer
+          (struct_initializer
+            (primary
+              (variable_expr
+                (identifier)))))))
+    (module_binding
+      (type_binding
+        (identifier)
+        (type_initializer
+          (enum_initializer
+            (enum_initializer_variant
+              (identifier))
+            (enum_initializer_variant
+              (identifier)
+              (primary
+                (variable_expr
+                  (identifier))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (function_contract
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (contract_expr
+                  (identifier))))))
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier)))
+            (block
+              (block_body
+                (primary
+                  (match_expr
+                    (primary
+                      (variable_expr
+                        (identifier)))
+                    (match_arm
+                      (constructor_pattern
+                        (identifier)
+                        (identifier)
+                        (constructor_pattern
+                          (identifier)))
+                      (primary
+                        (variable_expr
+                          (identifier))))
+                    (match_arm
+                      (constructor_pattern
+                        (identifier)
+                        (identifier))
+                      (primary
+                        (int_expr)))))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (function_contract
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (contract_expr
+                  (identifier))))))
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier)))
+            (block
+              (block_body
+                (binary_expr
+                  (primary
+                    (variable_expr
+                      (identifier)))
+                  (primary
+                    (dict_expr
+                      (dict_item
+                        (dict_field
+                          (identifier)
+                          (primary
+                            (int_expr)))))))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (function_contract
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (contract_expr
+                  (identifier))))))
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier)))
+            (block
+              (block_body
+                (dot_postfix_expr
+                  (primary
+                    (variable_expr
+                      (identifier)))
+                  (field_projection_suffix
+                    (field_projection_entry
+                      (identifier)
+                      (identifier))))))))))
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (unit_contract
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (contract_expr
+                  (identifier))))))
+        (primary
+          (paren_expr
+            (array_item
+              (spread_item
+                (primary
+                  (variable_expr
+                    (identifier)))))))))))
+
+==================
+Record update precedence
+==================
+
+def update = a | b <~ c == d |> f;
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (def_binding
+        (identifier)
+        (pipeline_expr
+          (binary_expr
+            (binary_expr
+              (binary_expr
+                (primary
+                  (variable_expr
+                    (identifier)))
+                (primary
+                  (variable_expr
+                    (identifier))))
+              (primary
+                (variable_expr
+                  (identifier))))
+            (primary
+              (variable_expr
+                (identifier))))
+          (primary
+            (variable_expr
+              (identifier))))))))

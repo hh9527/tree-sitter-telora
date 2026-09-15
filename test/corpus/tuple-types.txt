@@ -18,12 +18,14 @@ def unit = ().type;
         (type_initializer
           (primary
             (paren_expr
-              (primary
-                (variable_expr
-                  (identifier)))
-              (primary
-                (variable_expr
-                  (identifier))))))))
+              (array_item
+                (primary
+                  (variable_expr
+                    (identifier))))
+              (array_item
+                (primary
+                  (variable_expr
+                    (identifier)))))))))
     (module_binding
       (def_binding
         (identifier)
@@ -55,30 +57,34 @@ def unit = ().type;
               (block_body
                 (primary
                   (paren_expr
-                    (dot_postfix_expr
-                      (primary
-                        (variable_expr
-                          (identifier)))
-                      (projection_suffix
-                        (int_expr)))
-                    (dot_postfix_expr
-                      (primary
-                        (variable_expr
-                          (identifier)))
-                      (projection_suffix
-                        (int_expr)))))))))))
+                    (array_item
+                      (dot_postfix_expr
+                        (primary
+                          (variable_expr
+                            (identifier)))
+                        (projection_suffix
+                          (int_expr))))
+                    (array_item
+                      (dot_postfix_expr
+                        (primary
+                          (variable_expr
+                            (identifier)))
+                        (projection_suffix
+                          (int_expr))))))))))))
     (module_binding
       (def_binding
         (identifier)
         (dot_postfix_expr
           (primary
             (paren_expr
-              (primary
-                (variable_expr
-                  (identifier)))
-              (primary
-                (variable_expr
-                  (identifier)))))
+              (array_item
+                (primary
+                  (variable_expr
+                    (identifier))))
+              (array_item
+                (primary
+                  (variable_expr
+                    (identifier))))))
           (metadata_suffix))))
     (module_binding
       (def_binding

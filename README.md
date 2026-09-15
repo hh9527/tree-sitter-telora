@@ -71,12 +71,12 @@ lexemes. Everything else is a regex or anonymous token:
 
 - `{...}` is a dict when it can be (Lelwel `braced` priority `?1`);
   `{a}` / `{}` are dicts, `{ let ... }` falls back to a block.
-- `let x = e` parses as `let_pattern_binding` (Lelwel `?3` beats the plain
-  binding's `?0`); `let x : T = e` is the plain `let_binding`.
+- `let x = e` and `let x : T = e` are plain `let_binding` nodes;
+  destructuring uses `let_pattern_binding`. `_` is a wildcard pattern.
 - `def` has no parameter list (`def name : scheme = expr`), so
   `def f(x) = ...` is a syntax error, as in the Lelwel grammar.
 - Named Struct and Enum models use direct declaration initializers:
-  `type User = struct {...}` and `type Option(T) = enum {'None, 'Some(T)}`.
+  `type User = struct {...}` and `type Option(T) = enum {None, Some(T)}`.
   The removed `@struct` / `@enum` and callable constructors are not accepted.
 
 ## Development

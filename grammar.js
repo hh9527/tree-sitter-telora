@@ -33,13 +33,15 @@
  *
  * PRECEDENCE
  * ----------
- * Binding powers are taken from the generated Pratt parser
- * (fn rule_expression in the telora build output). Higher = tighter:
+ * Relative ordering follows the Lelwel expression rule. The numeric
+ * precedences below are defined in the expression rules; higher = tighter.
  *
- *   propagate '?'       24    field '.'         16
- *   call '()'           22    unary '-'         14
- *   type-apply '[]'     20    '*' '/'           12
- *   section '\(...)'    18    '+' '-'           10
+ *   propagate '?'       30    field '.'         20
+ *   call '()'           28    unary '-'         18
+ *   type-apply '@[]'    26    '*' '/'           16
+ *   section             22    '+' '-'           14
+ *   index               24    '&' '^' '|'       12/11/10
+ *                          '<~'                9
  *                          '<' '=='             8
  *                          '&&'                  6
  *                          '||'                  4
@@ -77,9 +79,8 @@ module.exports = grammar({
   // the first-listed alternative (dict_expr) wins.
   conflicts: $ => [
     [$.dict_expr, $.block],
-    // simple `let x = e` is a pattern binding in Lelwel (?3 > ?0); the plain
-    // let_binding is only reachable via the type annotation (`let x : T = e`).
-    [$.let_binding, $.identifier_pattern],
+    // Parenthesized trait contracts and generic impl parameters share a prefix.
+    [$.type_parameter, $.contract_expr],
   ],
 
   externals: $ => [
@@ -96,7 +97,7 @@ module.exports = grammar({
   rules: {
     source_file: $ => optional($.module_body),
 
-    module_body: $ => repeat1($.module_binding),
+    module_body: $ => choice(seq(repeat1($.module_binding), optional($.expression)), $.expression),
 
     block_body: $ => choice(
       seq(repeat1(choice($.binding, $.expression_statement)), optional($.expression)),
@@ -113,11 +114,14 @@ module.exports = grammar({
     // '_' and '_N' must be declared before identifier so a lone '_' is not
     // swallowed by the identifier regex (tree-sitter prefers the earlier
     // rule on equal-length matches; longer matches win elsewhere).
-    placeholder: $ => /_/,
+    placeholder: $ => token(prec(1, '_')),
     indexed_placeholder: $ => /_[0-9]+/,
 
     // ---------------------------------------------------------------- bindings
     module_binding: $ => choice(
+      $.let_binding,
+      $.let_pattern_binding,
+      $.let_else_binding,
       $.export_statement,
       $.decl_binding,
       $.def_binding,
@@ -141,18 +145,20 @@ module.exports = grammar({
       $.native_binding,
       $.type_binding,
       $.import_binding,
+      $.trait_binding,
+      $.impl_binding,
     ),
 
     export_statement: $ => seq(
       'export',
-      choice($.def_binding, $.type_binding, $.trait_binding, seq($.export_items, ';')),
+      choice($.let_binding, $.let_pattern_binding, $.def_binding, $.type_binding, $.trait_binding, seq($.export_items, ';'), seq($.member_selector, ';')),
     ),
     export_items: $ => seq('{', optional(seq($.export_item, repeat(seq(',', $.export_item)), optional(','))), '}'),
     export_item: $ => seq($.identifier, optional(seq('as', $.identifier))),
 
-    let_binding: $ => seq('let', $.identifier, optional(seq(':', $.expression)), '=', $.expression, ';'),
+    let_binding: $ => prec(2, seq('let', $.identifier, optional(seq(':', $.expression)), '=', $.expression, ';')),
     let_pattern_binding: $ => seq('let', $.pattern, '=', $.expression, ';'),
-    let_else_binding: $ => seq('let', $.pattern, '=', $.expression, 'else', $.block, ';'),
+    let_else_binding: $ => prec(2, seq('let', choice(seq($.identifier, optional(seq(':', $.expression))), $.pattern), '=', $.expression, 'else', $.block, ';')),
 
     decl_binding: $ => seq('decl', $.identifier, ':', $.type_scheme, ';'),
     def_binding: $ => seq('def', $.identifier, optional(seq(':', $.type_scheme)), '=', $.expression, ';'),
@@ -163,9 +169,9 @@ module.exports = grammar({
     type_initializer: $ => choice($.struct_initializer, $.enum_initializer, $.expression),
     struct_initializer: $ => seq(
       'struct',
-      '{',
+      choice(seq('{',
       optional(seq($.struct_initializer_field, repeat(seq(',', $.struct_initializer_field)), optional(','))),
-      '}',
+      '}'), seq('(', $.expression, ')')),
     ),
     struct_initializer_field: $ => seq(repeat($.decorator), $.identifier, ':', $.expression),
     enum_initializer: $ => seq(
@@ -174,7 +180,7 @@ module.exports = grammar({
       optional(seq($.enum_initializer_variant, repeat(seq(',', $.enum_initializer_variant)), optional(','))),
       '}',
     ),
-    enum_initializer_variant: $ => seq(repeat($.decorator), $.atom_expr, optional(seq('(', $.expression, ')'))),
+    enum_initializer_variant: $ => seq(repeat($.decorator), $.identifier, optional(seq('(', $.expression, ')'))),
     decorator: $ => seq('@', $.decorator_path, optional($.arguments)),
     decorator_path: $ => seq($.identifier, repeat(seq('.', $.identifier))),
 
@@ -201,7 +207,8 @@ module.exports = grammar({
     ),
     impl_member: $ => seq($.identifier, ':', $.expression),
 
-    import_binding: $ => seq('import', $.string_literal, $.import_selector, ';'),
+    import_binding: $ => seq('import', choice(seq($.string_literal, $.import_selector), $.member_selector), ';'),
+    member_selector: $ => seq($.identifier, repeat(seq('.', $.identifier)), '.', $.import_items),
     import_selector: $ => choice(
       seq('as', $.identifier, optional(seq(',', choice('*', $.import_items)))),
       '*',
@@ -213,10 +220,10 @@ module.exports = grammar({
     // ---------------------------------------------------------------- types
     type_scheme: $ => seq(optional(seq('for', $.type_parameters)), $.contract),
     type_parameters: $ => seq('(', $.type_parameter, repeat(seq(',', $.type_parameter)), optional(','), ')'),
-    type_parameter: $ => seq(
+    type_parameter: $ => prec(1, seq(
       $.identifier,
       optional(seq(':', $.trait_bound, repeat(seq('+', $.trait_bound)))),
-    ),
+    )),
     trait_bound: $ => $.contract,
     contract: $ => choice(
       $.contract_expr, // listed first: 'Identifier ...' preferred over 'Fn'
@@ -256,6 +263,7 @@ module.exports = grammar({
       prec.left(12, seq($.expression, '&', $.expression)),
       prec.left(11, seq($.expression, '^', $.expression)),
       prec.left(10, seq($.expression, '|', $.expression)),
+      prec.left(9, seq($.expression, '<~', $.expression)),
       prec.left(8, seq($.expression, choice('<', '<=', '>', '>=', '==', '!='), $.expression)),
       prec.left(6, seq($.expression, '&&', $.expression)),
       prec.left(4, seq($.expression, '||', $.expression)),
@@ -270,7 +278,9 @@ module.exports = grammar({
     type_apply_expr: $ => prec(26, seq($.expression, '@', $.type_arguments)),
     index_expr: $ => prec(24, seq($.expression, '[', $.expression, ']')),
     section_expr: $ => prec(22, seq($.expression, $.section_arguments)),
-    dot_postfix_expr: $ => prec(20, seq($.expression, '.', choice($.postfix_intrinsic_suffix, $.projection_suffix, $.metadata_suffix))),
+    dot_postfix_expr: $ => prec(20, seq($.expression, '.', choice($.postfix_intrinsic_suffix, $.projection_suffix, $.metadata_suffix, $.field_projection_suffix))),
+    field_projection_suffix: $ => seq('{', optional(seq($.field_projection_entry, repeat(seq(',', $.field_projection_entry)), optional(','))), '}'),
+    field_projection_entry: $ => seq($.identifier, optional(seq('as', $.identifier))),
     metadata_suffix: $ => 'type',
     postfix_intrinsic_suffix: $ => seq($.identifier, '!', $.arguments),
     projection_suffix: $ => choice($.identifier, $.int_expr),
@@ -281,7 +291,6 @@ module.exports = grammar({
       $.string_expr,
       $.concat_string,
       $.bytes_expr,
-      $.atom_expr,
       $.named_intrinsic,
       $.variable_expr,
       $.interpreter_intrinsic,
@@ -300,17 +309,16 @@ module.exports = grammar({
     ),
 
     int_expr: $ => /[0-9]+/,
-    float_expr: $ => /[0-9]+\.[0-9]+/,
+    float_expr: $ => /[0-9]+(\.[0-9]+([eE][+-]?[0-9]+)?|[eE][+-]?[0-9]+)/,
     string_expr: $ => $.string_literal,
     bytes_expr: $ => /b"([^"\\]|\\.)*"/,
-    atom_expr: $ => /'[A-Za-z_][A-Za-z0-9_]*/,
     variable_expr: $ => $.identifier,
 
     named_intrinsic: $ => seq($.identifier, '!', '(', optional(seq($.expression, repeat(seq(',', $.expression)), optional(','))), ')'),
     interpreter_intrinsic: $ => seq('interpreter', '!', '(', optional(seq($.expression, repeat(seq(',', $.expression)), optional(','))), ')'),
     legacy_interpreter_expr: $ => seq('interpreter', '(', $.expression, ')'),
 
-    paren_expr: $ => seq('(', optional(seq($.expression, repeat(seq(',', $.expression)), optional(','))), ')'),
+    paren_expr: $ => seq('(', optional(seq($.array_item, repeat(seq(',', $.array_item)), optional(','))), ')'),
     array_expr: $ => seq('[', optional(seq($.array_item, repeat(seq(',', $.array_item)), optional(','))), ']'),
     array_item: $ => choice($.spread_item, $.expression),
     spread_item: $ => seq('...', $.expression),
@@ -348,17 +356,15 @@ module.exports = grammar({
       $.int_pattern,
       $.float_pattern,
       $.string_pattern,
-      $.tagged_pattern, // before $.atom_pattern: 'Tag(...) wins over bare 'Tag
-      $.atom_pattern,
+      $.constructor_pattern,
       $.tuple_pattern,
       $.struct_pattern,
     ),
     identifier_pattern: $ => choice($.identifier, $.placeholder),
     int_pattern: $ => /[0-9]+/,
-    float_pattern: $ => /[0-9]+\.[0-9]+/,
+    float_pattern: $ => /[0-9]+(\.[0-9]+([eE][+-]?[0-9]+)?|[eE][+-]?[0-9]+)/,
     string_pattern: $ => $.string_literal,
-    tagged_pattern: $ => seq($.atom_expr, '(', $.pattern, ')'),
-    atom_pattern: $ => $.atom_expr,
+    constructor_pattern: $ => prec(1, seq($.identifier, repeat(seq('.', $.identifier)), optional(seq('(', $.pattern, ')')))),
     tuple_pattern: $ => seq('(', optional(seq($.pattern, repeat(seq(',', $.pattern)), optional(','))), ')'),
     struct_pattern: $ => seq('{', optional(seq($.struct_pattern_field, repeat(seq(',', $.struct_pattern_field)), optional(','))), '}'),
     struct_pattern_field: $ => seq($.identifier, optional(seq(':', $.pattern))),

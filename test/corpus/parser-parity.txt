@@ -1,0 +1,216 @@
+==================
+Generic impl and annotated bindings
+==================
+
+impl(T) Show for Box(T) {
+  show: fn(value) {
+    let next: Box(Array(T)) = {item: [value.item]};
+    let name: Int = 1 else { fail!("unreachable"); };
+    Show.show(next)
+  },
+};
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (impl_binding
+        (type_parameters
+          (type_parameter
+            (identifier)))
+        (contract
+          (contract_expr
+            (identifier)))
+        (contract
+          (contract_expr
+            (identifier)
+            (contract_argument
+              (contract
+                (contract_expr
+                  (identifier))))))
+        (impl_member
+          (identifier)
+          (primary
+            (closure
+              (parameters
+                (parameter
+                  (identifier)))
+              (block
+                (block_body
+                  (let_binding
+                    (identifier)
+                    (call_expr
+                      (primary
+                        (variable_expr
+                          (identifier)))
+                      (arguments
+                        (call_expr
+                          (primary
+                            (variable_expr
+                              (identifier)))
+                          (arguments
+                            (primary
+                              (variable_expr
+                                (identifier)))))))
+                    (primary
+                      (dict_expr
+                        (dict_item
+                          (dict_field
+                            (identifier)
+                            (primary
+                              (array_expr
+                                (array_item
+                                  (dot_postfix_expr
+                                    (primary
+                                      (variable_expr
+                                        (identifier)))
+                                    (projection_suffix
+                                      (identifier)))))))))))
+                  (let_else_binding
+                    (identifier)
+                    (primary
+                      (variable_expr
+                        (identifier)))
+                    (primary
+                      (int_expr))
+                    (block
+                      (block_body
+                        (expression_statement
+                          (primary
+                            (named_intrinsic
+                              (identifier)
+                              (primary
+                                (string_expr
+                                  (string_literal)))))))))
+                  (call_expr
+                    (dot_postfix_expr
+                      (primary
+                        (variable_expr
+                          (identifier)))
+                      (projection_suffix
+                        (identifier)))
+                    (arguments
+                      (primary
+                        (variable_expr
+                          (identifier))))))))))))))
+
+==================
+Module syntax retained for semantic diagnostics
+==================
+
+let (a, b) = (1, 2);
+let value: Float = 1.25e-3;
+export let other = 1E+2;
+value
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (let_pattern_binding
+        (tuple_pattern
+          (constructor_pattern
+            (identifier))
+          (constructor_pattern
+            (identifier)))
+        (primary
+          (paren_expr
+            (array_item
+              (primary
+                (int_expr)))
+            (array_item
+              (primary
+                (int_expr)))))))
+    (module_binding
+      (let_binding
+        (identifier)
+        (primary
+          (variable_expr
+            (identifier)))
+        (primary
+          (float_expr))))
+    (module_binding
+      (export_statement
+        (let_binding
+          (identifier)
+          (primary
+            (float_expr)))))
+    (primary
+      (variable_expr
+        (identifier)))))
+
+==================
+Exponent patterns and nested declarations
+==================
+
+def f = fn(x) {
+  trait Show { show: Fn(Self) -> String };
+  impl Show for Int { show: fn(value) { "int" } };
+  match x { 1e2 => 1, 1.5e-2 => 2, _ => 0 }
+};
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (def_binding
+        (identifier)
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier)))
+            (block
+              (block_body
+                (trait_binding
+                  (identifier)
+                  (trait_member
+                    (identifier)
+                    (contract
+                      (function_contract
+                        (contract
+                          (contract_expr
+                            (identifier)))
+                        (contract
+                          (contract_expr
+                            (identifier)))))))
+                (impl_binding
+                  (contract
+                    (contract_expr
+                      (identifier)))
+                  (contract
+                    (contract_expr
+                      (identifier)))
+                  (impl_member
+                    (identifier)
+                    (primary
+                      (closure
+                        (parameters
+                          (parameter
+                            (identifier)))
+                        (block
+                          (block_body
+                            (primary
+                              (string_expr
+                                (string_literal)))))))))
+                (primary
+                  (match_expr
+                    (primary
+                      (variable_expr
+                        (identifier)))
+                    (match_arm
+                      (float_pattern)
+                      (primary
+                        (int_expr)))
+                    (match_arm
+                      (float_pattern)
+                      (primary
+                        (int_expr)))
+                    (match_arm
+                      (identifier_pattern
+                        (placeholder))
+                      (primary
+                        (int_expr)))))))))))))

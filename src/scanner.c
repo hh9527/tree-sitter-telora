@@ -1,7 +1,7 @@
 /*
  * External scanner for tree-sitter-telora.
  *
- * Telora has TWO non-regular lexical constructs:
+ * This scanner handles two lexical constructs:
  *
  *   SECTION_LPAREN  '\('   -- a two-character token
  *   RAW_STRING      r#"..."# -- the terminator must be `"` + the same number
@@ -9,7 +9,7 @@
  *                            scan_raw_string in lexer.rs:271.
  *
  * Everything else (backtick concat strings with interpolation, strings,
- * atoms, numbers, ...) is handled by plain regex / anonymous tokens in
+ * numbers, ...) is handled by plain regex / anonymous tokens in
  * grammar.js.
  *
  * NOTE: tree-sitter does not re-invoke the external scanner after skipping
@@ -60,22 +60,23 @@ static bool scan_raw_string(TSLexer *lexer) {
   uint8_t hashes = 0;
   while (lexer->lookahead == '#') {
     lexer->advance(lexer, false);
+    if (hashes == 255) return false;
     hashes++;
   }
   if (lexer->lookahead != '"') return false;
   lexer->advance(lexer, false);
-  if (hashes > 255) return false;        /* matches scan_raw_string lexer.rs:273 */
   for (;;) {
     if (lexer->eof(lexer)) return false; /* unterminated: let error recovery */
     if (lexer->lookahead == '"') {
-      /* a terminator is `"` + exactly `hashes` '#' not followed by '#' */
+      /* Consume the first matching delimiter, like the Telora lexer.
+       * Any following '#' belongs to the next token (a comment). */
       lexer->advance(lexer, false);      /* consume '"' */
       uint8_t seen = 0;
       while (lexer->lookahead == '#' && seen < hashes) {
         lexer->advance(lexer, false);
         seen++;
       }
-      if (seen == hashes && lexer->lookahead != '#') {
+      if (seen == hashes) {
         return true;
       }
       continue;                          /* not a terminator; keep scanning */

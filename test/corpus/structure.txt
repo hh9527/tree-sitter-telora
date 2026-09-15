@@ -1,0 +1,177 @@
+==================
+Function contracts associate to the right
+==================
+
+def curry: Fn(Int) -> Fn(String) -> Bool = fn(x) { fn(y) { True } };
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (def_binding
+        (identifier)
+        (type_scheme
+          (contract
+            (function_contract
+              (contract
+                (contract_expr
+                  (identifier)))
+              (contract
+                (function_contract
+                  (contract
+                    (contract_expr
+                      (identifier)))
+                  (contract
+                    (contract_expr
+                      (identifier))))))))
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier)))
+            (block
+              (block_body
+                (primary
+                  (closure
+                    (parameters
+                      (parameter
+                        (identifier)))
+                    (block
+                      (block_body
+                        (primary
+                          (variable_expr
+                            (identifier)))))))))))))))
+
+==================
+Patterns, bindings, and postfix ordering
+==================
+
+def f = fn(input) {
+  let plain = input;
+  let typed: Int = input;
+  let Some(x) = input else { return 0; };
+  match input {
+    Result.Ok((left, right)) if left > 0 => f(left).value[0]?,
+    _ => 0,
+  }
+};
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (def_binding
+        (identifier)
+        (primary
+          (closure
+            (parameters
+              (parameter
+                (identifier)))
+            (block
+              (block_body
+                (let_binding
+                  (identifier)
+                  (primary
+                    (variable_expr
+                      (identifier))))
+                (let_binding
+                  (identifier)
+                  (primary
+                    (variable_expr
+                      (identifier)))
+                  (primary
+                    (variable_expr
+                      (identifier))))
+                (let_else_binding
+                  (constructor_pattern
+                    (identifier)
+                    (constructor_pattern
+                      (identifier)))
+                  (primary
+                    (variable_expr
+                      (identifier)))
+                  (block
+                    (block_body
+                      (primary
+                        (return_expr
+                          (primary
+                            (int_expr)))))))
+                (primary
+                  (match_expr
+                    (primary
+                      (variable_expr
+                        (identifier)))
+                    (match_arm
+                      (constructor_pattern
+                        (identifier)
+                        (identifier)
+                        (tuple_pattern
+                          (constructor_pattern
+                            (identifier))
+                          (constructor_pattern
+                            (identifier))))
+                      (binary_expr
+                        (primary
+                          (variable_expr
+                            (identifier)))
+                        (primary
+                          (int_expr)))
+                      (propagate_expr
+                        (index_expr
+                          (dot_postfix_expr
+                            (call_expr
+                              (primary
+                                (variable_expr
+                                  (identifier)))
+                              (arguments
+                                (primary
+                                  (variable_expr
+                                    (identifier)))))
+                            (projection_suffix
+                              (identifier)))
+                          (primary
+                            (int_expr)))))
+                    (match_arm
+                      (identifier_pattern
+                        (placeholder))
+                      (primary
+                        (int_expr)))))))))))))
+
+==================
+Interpolation preserves nested syntax
+==================
+
+def text = `before \{fn(x) { {value: r#"}"#} }.type} after`;
+
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (def_binding
+        (identifier)
+        (primary
+          (concat_string
+            (concat_fragment)
+            (interpolation
+              (dot_postfix_expr
+                (primary
+                  (closure
+                    (parameters
+                      (parameter
+                        (identifier)))
+                    (block
+                      (block_body
+                        (primary
+                          (dict_expr
+                            (dict_item
+                              (dict_field
+                                (identifier)
+                                (primary
+                                  (string_expr
+                                    (string_literal
+                                      (raw_string))))))))))))
+                (metadata_suffix)))
+            (concat_fragment)))))))

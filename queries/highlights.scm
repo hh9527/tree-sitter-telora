@@ -37,9 +37,7 @@
 (concat_fragment) @string
 (bytes_expr) @string
 
-(atom_expr) @constant
-(atom_pattern) @constant
-(tagged_pattern (atom_expr) @constant)
+(constructor_pattern (identifier) @constant)
 
 (comment) @comment
 
@@ -99,6 +97,7 @@
   "&&"
   "||"
   "|>"
+  "<~"
   "->"
   "=>"
   "!"
