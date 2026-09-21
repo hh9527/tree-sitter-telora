@@ -48,7 +48,8 @@ mod tests {
         let mut source = std::fs::read_to_string(
             std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join("test/fixtures/raw-incremental.telora"),
-        ).unwrap();
+        )
+        .unwrap();
         let mut parser = tree_sitter::Parser::new();
         parser.set_language(&super::LANGUAGE.into()).unwrap();
         let mut tree = parser.parse(&source, None).unwrap();
@@ -98,7 +99,9 @@ mod tests {
         let mut pending = vec![tree.root_node()];
         let mut lengths = vec![];
         while let Some(node) = pending.pop() {
-            if node.kind() == "raw_text" { lengths.push(node.byte_range().len()); }
+            if node.kind() == "raw_text" {
+                lengths.push(node.byte_range().len());
+            }
             let mut cursor = node.walk();
             pending.extend(node.children(&mut cursor));
         }
