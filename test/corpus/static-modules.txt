@@ -23,7 +23,7 @@ def answer: crate::model::Answer = crate::query::answer;
       (use_binding
         (spaces)
         (use_path
-          (path_head)
+          (identifier)
           (identifier)
           (identifier))))
     (newline)
@@ -31,7 +31,7 @@ def answer: crate::model::Answer = crate::query::answer;
       (use_binding
         (spaces)
         (use_path
-          (path_head)
+          (identifier)
           (identifier))
         (use_selector
           (use_items
@@ -50,7 +50,7 @@ def answer: crate::model::Answer = crate::query::answer;
           (contract
             (contract_expr
               (static_path
-                (path_head)
+                (identifier)
                 (identifier)
                 (identifier)))))
         (spaces)
@@ -85,14 +85,14 @@ def answer: crate::model::Answer = crate::query::answer;
           (contract
             (contract_expr
               (static_path
-                (path_head)
+                (identifier)
                 (identifier)
                 (identifier)))))
         (spaces)
         (spaces)
         (static_path_expr
           (static_path
-            (path_head)
+            (identifier)
             (identifier)
             (identifier))))))
   (newline))

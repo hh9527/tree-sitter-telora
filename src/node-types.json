@@ -1483,21 +1483,6 @@
     }
   },
   {
-    "type": "path_head",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "pipeline_expr",
     "named": true,
     "fields": {},
@@ -1772,10 +1757,6 @@
       "types": [
         {
           "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "path_head",
           "named": true
         }
       ]
@@ -2247,10 +2228,6 @@
         {
           "type": "identifier",
           "named": true
-        },
-        {
-          "type": "path_head",
-          "named": true
         }
       ]
     }
@@ -2438,10 +2415,6 @@
     "named": true
   },
   {
-    "type": "crate",
-    "named": false
-  },
-  {
     "type": "data",
     "named": false
   },
@@ -2562,10 +2535,6 @@
     "named": true
   },
   {
-    "type": "self",
-    "named": false
-  },
-  {
     "type": "spaces",
     "named": true
   },
@@ -2575,10 +2544,6 @@
   },
   {
     "type": "struct",
-    "named": false
-  },
-  {
-    "type": "super",
     "named": false
   },
   {

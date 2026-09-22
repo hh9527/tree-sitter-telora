@@ -1291,7 +1291,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "path_head"
+          "name": "identifier"
         },
         {
           "type": "REPEAT",
@@ -2797,7 +2797,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "path_head"
+          "name": "identifier"
         },
         {
           "type": "REPEAT1",
@@ -2814,27 +2814,6 @@
               }
             ]
           }
-        }
-      ]
-    },
-    "path_head": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "identifier"
-        },
-        {
-          "type": "STRING",
-          "value": "crate"
-        },
-        {
-          "type": "STRING",
-          "value": "self"
-        },
-        {
-          "type": "STRING",
-          "value": "super"
         }
       ]
     },
