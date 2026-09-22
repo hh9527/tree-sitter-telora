@@ -1,0 +1,98 @@
+==================
+static modules paths and typed data
+==================
+
+mod query;
+use crate::query::Query;
+use crate::query::{Intent, Rule};
+data config: crate::model::Config = import(json) "config.data";
+data defaults = import "defaults.json";
+def answer: crate::model::Answer = crate::query::answer;
+
+---
+
+(source_file
+  (newline)
+  (module_body
+    (module_binding
+      (module_declaration
+        (spaces)
+        (identifier)))
+    (newline)
+    (module_binding
+      (use_binding
+        (spaces)
+        (use_path
+          (identifier)
+          (identifier)
+          (identifier))))
+    (newline)
+    (module_binding
+      (use_binding
+        (spaces)
+        (use_path
+          (identifier)
+          (identifier))
+        (use_selector
+          (use_items
+            (use_item
+              (identifier))
+            (spaces)
+            (use_item
+              (identifier))))))
+    (newline)
+    (module_binding
+      (data_binding
+        (spaces)
+        (identifier)
+        (spaces)
+        (type_scheme
+          (contract
+            (contract_expr
+              (static_path
+                (identifier)
+                (identifier)
+                (identifier)))))
+        (spaces)
+        (spaces)
+        (data_import
+          (data_format)
+          (spaces)
+          (string_literal
+            (quote_start)
+            (string_text)
+            (quote_end)))))
+    (newline)
+    (module_binding
+      (data_binding
+        (spaces)
+        (identifier)
+        (spaces)
+        (spaces)
+        (data_import
+          (spaces)
+          (string_literal
+            (quote_start)
+            (string_text)
+            (quote_end)))))
+    (newline)
+    (module_binding
+      (def_binding
+        (spaces)
+        (identifier)
+        (spaces)
+        (type_scheme
+          (contract
+            (contract_expr
+              (static_path
+                (identifier)
+                (identifier)
+                (identifier)))))
+        (spaces)
+        (spaces)
+        (static_path_expr
+          (static_path
+            (identifier)
+            (identifier)
+            (identifier))))))
+  (newline))
