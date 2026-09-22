@@ -131,7 +131,6 @@ module.exports = grammar({
       $.let_binding,
       $.let_pattern_binding,
       $.let_else_binding,
-      $.export_statement,
       $.decl_binding,
       $.def_binding,
       $.native_type_binding,
@@ -142,11 +141,9 @@ module.exports = grammar({
       $.module_declaration,
       $.use_binding,
       $.data_binding,
-      $.import_binding,
     ),
 
     binding: $ => choice(
-      $.export_statement,
       // Binding forms: else > pattern > plain.
       $.let_else_binding,
       $.let_pattern_binding,
@@ -157,29 +154,23 @@ module.exports = grammar({
       $.native_binding,
       $.type_binding,
       $.use_binding,
-      $.import_binding,
       $.trait_binding,
       $.impl_binding,
     ),
 
-    export_statement: $ => seq(
-      'export',
-      choice($.let_binding, $.let_pattern_binding, $.def_binding, $.type_binding, $.trait_binding, seq($.export_items, ';'), seq($.member_selector, ';')),
-    ),
-    export_items: $ => seq('{', optional(seq($.export_item, repeat(seq(',', $.export_item)), optional(','))), '}'),
-    export_item: $ => seq($.identifier, optional(seq('as', $.identifier))),
+    visibility: $ => 'pub',
 
     // Missing slots stay absent; structural diagnostics identify them later.
-    let_binding: $ => prec(2, seq('let', optional($.identifier), optional(seq(':', $.expression)), '=', optional($.expression), ';')),
+    let_binding: $ => prec(2, seq(optional($.visibility), 'let', optional($.identifier), optional(seq(':', $.expression)), '=', optional($.expression), ';')),
     let_pattern_binding: $ => seq('let', $.pattern, '=', $.expression, ';'),
     let_else_binding: $ => prec(2, seq('let', choice(seq($.identifier, optional(seq(':', $.expression))), $.pattern), '=', $.expression, 'else', $.block, ';')),
 
-    decl_binding: $ => seq('decl', $.identifier, ':', $.type_scheme, ';'),
-    def_binding: $ => seq('def', $.identifier, optional(seq(':', $.type_scheme)), '=', $.expression, ';'),
-    native_binding: $ => seq('native', $.identifier, ':', $.type_scheme, ';'),
-    native_type_binding: $ => seq('native', 'type', $.identifier, '@', $.int_expr, ';'),
+    decl_binding: $ => seq(optional($.visibility), 'decl', $.identifier, ':', $.type_scheme, ';'),
+    def_binding: $ => seq(optional($.visibility), 'def', $.identifier, optional(seq(':', $.type_scheme)), '=', $.expression, ';'),
+    native_binding: $ => seq(optional($.visibility), 'native', $.identifier, ':', $.type_scheme, ';'),
+    native_type_binding: $ => seq(optional($.visibility), 'native', 'type', $.identifier, '@', $.int_expr, ';'),
 
-    type_binding: $ => seq(repeat($.decorator), 'type', $.identifier, optional($.type_parameters), '=', $.type_initializer, ';'),
+    type_binding: $ => seq(repeat($.decorator), optional($.visibility), 'type', $.identifier, optional($.type_parameters), '=', $.type_initializer, ';'),
     type_initializer: $ => choice($.struct_initializer, $.enum_initializer, $.expression),
     struct_initializer: $ => seq(
       'struct',
@@ -196,9 +187,10 @@ module.exports = grammar({
     ),
     enum_initializer_variant: $ => seq(repeat($.decorator), $.identifier, optional(seq('(', $.expression, ')'))),
     decorator: $ => seq('@', $.decorator_path, optional($.arguments)),
-    decorator_path: $ => seq($.identifier, repeat(seq('.', $.identifier))),
+    decorator_path: $ => seq($.identifier, repeat(seq('::', $.identifier))),
 
     trait_binding: $ => seq(
+      optional($.visibility),
       'trait',
       $.identifier,
       '{',
@@ -221,14 +213,21 @@ module.exports = grammar({
     ),
     impl_member: $ => seq($.identifier, ':', $.expression),
 
-    module_declaration: $ => seq('mod', optional($.identifier), ';'),
-    use_binding: $ => seq('use', $.use_path, optional($.use_selector), ';'),
+    module_declaration: $ => seq(optional($.visibility), 'mod', optional($.identifier), ';'),
+    use_binding: $ => seq(
+      optional($.visibility),
+      'use',
+      $.use_path,
+      choice($.use_selector, optional(seq('as', $.identifier))),
+      ';',
+    ),
     use_path: $ => seq($.identifier, repeat(seq('::', $.identifier))),
     use_selector: $ => seq('::', $.use_items),
     use_items: $ => seq('{', optional(seq($.use_item, repeat(seq(',', $.use_item)), optional(','))), '}'),
     use_item: $ => seq($.identifier, optional(seq('as', $.identifier))),
 
     data_binding: $ => seq(
+      optional($.visibility),
       'data',
       optional($.identifier),
       optional(seq(':', $.type_scheme)),
@@ -242,16 +241,6 @@ module.exports = grammar({
       optional($.string_literal),
     ),
     data_format: $ => choice('json', 'yaml', 'toml'),
-
-    import_binding: $ => seq('import', choice(seq($.string_literal, $.import_selector), $.member_selector), ';'),
-    member_selector: $ => seq($.identifier, repeat(seq('.', $.identifier)), '.', $.import_items),
-    import_selector: $ => choice(
-      seq('as', $.identifier, optional(seq(',', choice('*', $.import_items)))),
-      '*',
-      $.import_items,
-    ),
-    import_items: $ => seq('{', optional(seq($.import_item, repeat(seq(',', $.import_item)), optional(','))), '}'),
-    import_item: $ => seq($.identifier, optional(seq('as', $.identifier))),
 
     // ---------------------------------------------------------------- types
     type_scheme: $ => seq(optional(seq('for', $.type_parameters)), $.contract),
@@ -413,10 +402,11 @@ module.exports = grammar({
     int_pattern: $ => /[0-9]+/,
     float_pattern: $ => /[0-9]+(\.[0-9]+([eE][+-]?[0-9]+)?|[eE][+-]?[0-9]+)/,
     string_pattern: $ => $.string_literal,
-    constructor_pattern: $ => prec.right(1, seq($.identifier, choice(
-      seq(repeat1(seq('.', $.identifier)), optional(seq('(', $.pattern, ')'))),
-      seq('(', $.pattern, ')'),
-    ))),
+    constructor_pattern: $ => prec.right(1, choice(
+      seq($.static_path, optional(seq('(', $.pattern, ')'))),
+      seq($.identifier, repeat1(seq('.', $.identifier)), optional(seq('(', $.pattern, ')'))),
+      seq($.identifier, '(', $.pattern, ')'),
+    )),
     tuple_pattern: $ => seq('(', optional(seq($.pattern, repeat(seq(',', $.pattern)), optional(','))), ')'),
     struct_pattern: $ => seq('{', optional(seq($.struct_pattern_field, repeat(seq(',', $.struct_pattern_field)), optional(','))), '}'),
     struct_pattern_field: $ => seq($.identifier, optional(seq(':', $.pattern))),

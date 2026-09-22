@@ -534,15 +534,15 @@ def s = transform\(_1, 123, _0);
 declared struct and enum initializers
 ==================
 
-@json.rename_all(CamelCase)
+@json::rename_all(CamelCase)
 type User = struct {
-  @json.rename("userId") id: Int,
+  @json::rename("userId") id: Int,
   name: String,
 };
 
 type Expr = enum {
   Literal(Int),
-  @json.rename("call") Call(CallExpr),
+  @json::rename("call") Call(CallExpr),
 };
 
 type CallExpr = struct { args: Array(Expr) };

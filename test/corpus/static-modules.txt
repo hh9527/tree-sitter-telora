@@ -2,12 +2,13 @@
 static modules paths and typed data
 ==================
 
-mod query;
-use crate::query::Query;
-use crate::query::{Intent, Rule};
-data config: crate::model::Config = import(json) "config.data";
+pub mod query;
+pub use crate::query::Query;
+use crate::query::Intent as LocalIntent;
+pub use crate::query::{Intent, Rule as PublicRule};
+pub data config: crate::model::Config = import(json) "config.data";
 data defaults = import "defaults.json";
-def answer: crate::model::Answer = crate::query::answer;
+pub def answer: crate::model::Answer = crate::query::answer;
 
 ---
 
@@ -16,11 +17,15 @@ def answer: crate::model::Answer = crate::query::answer;
   (module_body
     (module_binding
       (module_declaration
+        (visibility)
+        (spaces)
         (spaces)
         (identifier)))
     (newline)
     (module_binding
       (use_binding
+        (visibility)
+        (spaces)
         (spaces)
         (use_path
           (identifier)
@@ -32,6 +37,19 @@ def answer: crate::model::Answer = crate::query::answer;
         (spaces)
         (use_path
           (identifier)
+          (identifier)
+          (identifier))
+        (spaces)
+        (spaces)
+        (identifier)))
+    (newline)
+    (module_binding
+      (use_binding
+        (visibility)
+        (spaces)
+        (spaces)
+        (use_path
+          (identifier)
           (identifier))
         (use_selector
           (use_items
@@ -39,10 +57,15 @@ def answer: crate::model::Answer = crate::query::answer;
               (identifier))
             (spaces)
             (use_item
+              (identifier)
+              (spaces)
+              (spaces)
               (identifier))))))
     (newline)
     (module_binding
       (data_binding
+        (visibility)
+        (spaces)
         (spaces)
         (identifier)
         (spaces)
@@ -78,6 +101,8 @@ def answer: crate::model::Answer = crate::query::answer;
     (newline)
     (module_binding
       (def_binding
+        (visibility)
+        (spaces)
         (spaces)
         (identifier)
         (spaces)

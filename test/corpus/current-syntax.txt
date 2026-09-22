@@ -2,9 +2,9 @@
 Member selectors, constructor patterns, and record operations
 ==================
 
-import "std/result" as result;
-import result.{Result, Ok, Err};
-export result.{Result as Outcome};
+use std::result;
+use result::{Result, Ok, Err};
+pub use result::Result as Outcome;
 type Box = struct(Int);
 type Choice = enum { Empty, Full(Int) };
 def inspect: Fn(Choice) -> Int = fn(value) {
@@ -23,43 +23,39 @@ def spread: (Int, Int) = (...pair,);
   (newline)
   (module_body
     (module_binding
-      (import_binding
+      (use_binding
         (spaces)
-        (string_literal
-          (quote_start)
-          (string_text)
-          (quote_end))
-        (spaces)
-        (import_selector
-          (spaces)
+        (use_path
+          (identifier)
           (identifier))))
     (newline)
     (module_binding
-      (import_binding
+      (use_binding
         (spaces)
-        (member_selector
-          (identifier)
-          (import_items
-            (import_item
+        (use_path
+          (identifier))
+        (use_selector
+          (use_items
+            (use_item
               (identifier))
             (spaces)
-            (import_item
+            (use_item
               (identifier))
             (spaces)
-            (import_item
+            (use_item
               (identifier))))))
     (newline)
     (module_binding
-      (export_statement
+      (use_binding
+        (visibility)
         (spaces)
-        (member_selector
+        (spaces)
+        (use_path
           (identifier)
-          (import_items
-            (import_item
-              (identifier)
-              (spaces)
-              (spaces)
-              (identifier))))))
+          (identifier))
+        (spaces)
+        (spaces)
+        (identifier)))
     (newline)
     (module_binding
       (type_binding

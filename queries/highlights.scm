@@ -23,9 +23,10 @@
   "use"
   "data"
   "import"
-  "export"
   "as"
 ] @keyword
+
+(visibility) @keyword
 
 ; ---------------------------------------------------------------- literals
 (int_expr) @number

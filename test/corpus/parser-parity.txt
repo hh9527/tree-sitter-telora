@@ -136,7 +136,7 @@ Module syntax retained for semantic diagnostics
 
 let (a, b) = (1, 2);
 let value: Float = 1.25e-3;
-export let other = 1E+2;
+pub let other = 1E+2;
 value
 
 ---
@@ -179,15 +179,15 @@ value
           (float_expr))))
     (newline)
     (module_binding
-      (export_statement
+      (let_binding
+        (visibility)
         (spaces)
-        (let_binding
-          (spaces)
-          (identifier)
-          (spaces)
-          (spaces)
-          (primary
-            (float_expr)))))
+        (spaces)
+        (identifier)
+        (spaces)
+        (spaces)
+        (primary
+          (float_expr))))
     (newline)
     (primary
       (variable_expr
