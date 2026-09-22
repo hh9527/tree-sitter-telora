@@ -50,6 +50,10 @@
       {
         "type": "type_binding",
         "named": true
+      },
+      {
+        "type": "use_binding",
+        "named": true
       }
     ]
   },
@@ -87,6 +91,10 @@
       },
       {
         "type": "section_expr",
+        "named": true
+      },
+      {
+        "type": "static_path_expr",
         "named": true
       },
       {
@@ -414,6 +422,10 @@
         {
           "type": "identifier",
           "named": true
+        },
+        {
+          "type": "static_path",
+          "named": true
         }
       ]
     }
@@ -444,6 +456,53 @@
         },
         {
           "type": "return_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "data_binding",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "data_import",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type_scheme",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "data_format",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "data_import",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "data_format",
+          "named": true
+        },
+        {
+          "type": "string_literal",
           "named": true
         }
       ]
@@ -1217,6 +1276,10 @@
       "required": true,
       "types": [
         {
+          "type": "data_binding",
+          "named": true
+        },
+        {
           "type": "decl_binding",
           "named": true
         },
@@ -1249,6 +1312,10 @@
           "named": true
         },
         {
+          "type": "module_declaration",
+          "named": true
+        },
+        {
           "type": "native_binding",
           "named": true
         },
@@ -1262,6 +1329,10 @@
         },
         {
           "type": "type_binding",
+          "named": true
+        },
+        {
+          "type": "use_binding",
           "named": true
         }
       ]
@@ -1285,6 +1356,21 @@
         },
         {
           "type": "module_binding",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "module_declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
           "named": true
         }
       ]
@@ -1391,6 +1477,21 @@
       "types": [
         {
           "type": "array_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "path_head",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
           "named": true
         }
       ]
@@ -1656,6 +1757,40 @@
       "types": [
         {
           "type": "expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "static_path",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "path_head",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "static_path_expr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "static_path",
           "named": true
         }
       ]
@@ -2053,6 +2188,89 @@
     }
   },
   {
+    "type": "use_binding",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "use_path",
+          "named": true
+        },
+        {
+          "type": "use_selector",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "use_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "use_items",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "use_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "use_path",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "path_head",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "use_selector",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "use_items",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "variable_expr",
     "named": true,
     "fields": {},
@@ -2129,6 +2347,10 @@
   },
   {
     "type": ":",
+    "named": false
+  },
+  {
+    "type": "::",
     "named": false
   },
   {
@@ -2216,6 +2438,14 @@
     "named": true
   },
   {
+    "type": "crate",
+    "named": false
+  },
+  {
+    "type": "data",
+    "named": false
+  },
+  {
     "type": "decl",
     "named": false
   },
@@ -2276,11 +2506,19 @@
     "named": false
   },
   {
+    "type": "json",
+    "named": false
+  },
+  {
     "type": "let",
     "named": false
   },
   {
     "type": "match",
+    "named": false
+  },
+  {
+    "type": "mod",
     "named": false
   },
   {
@@ -2324,6 +2562,10 @@
     "named": true
   },
   {
+    "type": "self",
+    "named": false
+  },
+  {
     "type": "spaces",
     "named": true
   },
@@ -2336,8 +2578,16 @@
     "named": false
   },
   {
+    "type": "super",
+    "named": false
+  },
+  {
     "type": "tabs",
     "named": true
+  },
+  {
+    "type": "toml",
+    "named": false
   },
   {
     "type": "trait",
@@ -2345,6 +2595,14 @@
   },
   {
     "type": "type",
+    "named": false
+  },
+  {
+    "type": "use",
+    "named": false
+  },
+  {
+    "type": "yaml",
     "named": false
   },
   {

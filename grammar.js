@@ -80,6 +80,8 @@ module.exports = grammar({
     [$.dict_expr, $.block],
     // Parenthesized trait contracts and generic impl parameters share a prefix.
     [$.type_parameter, $.contract_expr],
+    // A use path may end before `::{...}` or continue through `::name`.
+    [$.use_path],
   ],
 
   externals: $ => [
@@ -137,6 +139,9 @@ module.exports = grammar({
       $.type_binding,
       $.trait_binding,
       $.impl_binding,
+      $.module_declaration,
+      $.use_binding,
+      $.data_binding,
       $.import_binding,
     ),
 
@@ -151,6 +156,7 @@ module.exports = grammar({
       $.native_type_binding, // before native_binding ('native type' prefix)
       $.native_binding,
       $.type_binding,
+      $.use_binding,
       $.import_binding,
       $.trait_binding,
       $.impl_binding,
@@ -215,6 +221,28 @@ module.exports = grammar({
     ),
     impl_member: $ => seq($.identifier, ':', $.expression),
 
+    module_declaration: $ => seq('mod', optional($.identifier), ';'),
+    use_binding: $ => seq('use', $.use_path, optional($.use_selector), ';'),
+    use_path: $ => seq($.path_head, repeat(seq('::', $.identifier))),
+    use_selector: $ => seq('::', $.use_items),
+    use_items: $ => seq('{', optional(seq($.use_item, repeat(seq(',', $.use_item)), optional(','))), '}'),
+    use_item: $ => seq($.identifier, optional(seq('as', $.identifier))),
+
+    data_binding: $ => seq(
+      'data',
+      optional($.identifier),
+      optional(seq(':', $.type_scheme)),
+      '=',
+      $.data_import,
+      ';',
+    ),
+    data_import: $ => seq(
+      'import',
+      optional(seq('(', $.data_format, ')')),
+      optional($.string_literal),
+    ),
+    data_format: $ => choice('json', 'yaml', 'toml'),
+
     import_binding: $ => seq('import', choice(seq($.string_literal, $.import_selector), $.member_selector), ';'),
     member_selector: $ => seq($.identifier, repeat(seq('.', $.identifier)), '.', $.import_items),
     import_selector: $ => choice(
@@ -238,11 +266,17 @@ module.exports = grammar({
       $.function_contract,
       $.unit_contract,
     ),
-    contract_expr: $ => prec.right(29, seq(
-      $.identifier,
-      repeat(seq('.', $.identifier)),
-      optional(seq('(', optional(seq($.contract_argument, repeat(seq(',', $.contract_argument)), optional(','))), ')')),
-    )),
+    contract_expr: $ => choice(
+      prec.right(29, seq(
+        $.static_path,
+        optional(seq('(', optional(seq($.contract_argument, repeat(seq(',', $.contract_argument)), optional(','))), ')')),
+      )),
+      prec.right(29, seq(
+        $.identifier,
+        repeat(seq('.', $.identifier)),
+        optional(seq('(', optional(seq($.contract_argument, repeat(seq(',', $.contract_argument)), optional(','))), ')')),
+      )),
+    ),
     contract_argument: $ => choice($.contract, $.contract_array),
     unit_contract: $ => seq('(', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ')'),
     contract_array: $ => seq('[', optional(seq($.contract, repeat(seq(',', $.contract)), optional(','))), ']'),
@@ -264,6 +298,7 @@ module.exports = grammar({
       $.index_expr,
       $.section_expr,
       $.dot_postfix_expr,
+      $.static_path_expr,
       $.primary,
     ),
 
@@ -291,6 +326,9 @@ module.exports = grammar({
     index_expr: $ => prec(24, seq($.expression, '[', $.expression, ']')),
     section_expr: $ => prec(22, seq($.expression, $.section_arguments)),
     dot_postfix_expr: $ => prec.right(20, seq($.expression, '.', optional(choice($.postfix_intrinsic_suffix, $.projection_suffix, $.metadata_suffix, $.field_projection_suffix)))),
+    static_path_expr: $ => prec.right(21, $.static_path),
+    static_path: $ => seq($.path_head, repeat1(seq('::', $.identifier))),
+    path_head: $ => choice($.identifier, 'crate', 'self', 'super'),
     field_projection_suffix: $ => seq('{', optional(seq($.field_projection_entry, repeat(seq(',', $.field_projection_entry)), optional(','))), '}'),
     field_projection_entry: $ => seq($.identifier, optional(seq('as', $.identifier))),
     metadata_suffix: $ => 'type',

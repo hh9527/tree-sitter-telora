@@ -19,6 +19,9 @@
   "else"
   "match"
   "return"
+  "mod"
+  "use"
+  "data"
   "import"
   "export"
   "as"
@@ -39,12 +42,19 @@
 (bytes_expr) @string
 
 (constructor_pattern (identifier) @constant)
+(data_format) @constant.builtin
 
 (comment) @comment
 
 ; ---------------------------------------------------------------- functions
 (def_binding
   (identifier) @function)
+
+(module_declaration
+  (identifier) @module)
+
+(data_binding
+  (identifier) @variable)
 
 (parameter
   (identifier) @parameter)
@@ -101,6 +111,7 @@
   "<~"
   "->"
   "=>"
+  "::"
   "!"
   "..."
 ] @operator
