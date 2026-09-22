@@ -260,7 +260,7 @@ module.exports = grammar({
       $.identifier,
       optional(seq(':', $.trait_bound, repeat(seq('+', $.trait_bound)))),
     )),
-    trait_bound: $ => $.contract,
+    trait_bound: $ => seq(optional('?'), $.contract),
     contract: $ => choice(
       $.contract_expr, // listed first: 'Identifier ...' preferred over 'Fn'
       $.function_contract,
