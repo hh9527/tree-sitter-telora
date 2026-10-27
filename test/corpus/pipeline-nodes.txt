@@ -1,0 +1,37 @@
+==================
+Lazy pipeline composition
+==================
+let c = merge(a, b) |> distinct_by(key);
+---
+
+(source_file
+  (module_body
+    (module_binding
+      (let_binding
+        (spaces)
+        (identifier)
+        (spaces)
+        (spaces)
+        (pipeline_expr
+          (call_expr
+            (primary
+              (variable_expr
+                (identifier)))
+            (arguments
+              (primary
+                (variable_expr
+                  (identifier)))
+              (spaces)
+              (primary
+                (variable_expr
+                  (identifier)))))
+          (spaces)
+          (spaces)
+          (call_expr
+            (primary
+              (variable_expr
+                (identifier)))
+            (arguments
+              (primary
+                (variable_expr
+                  (identifier))))))))))

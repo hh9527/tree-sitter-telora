@@ -1576,6 +1576,7 @@
   {
     "type": "source_file",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": false,
@@ -2280,7 +2281,8 @@
   },
   {
     "type": "comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "concat_fragment",
@@ -2368,7 +2370,8 @@
   },
   {
     "type": "newline",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "placeholder",
@@ -2404,7 +2407,8 @@
   },
   {
     "type": "spaces",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "string_text",
@@ -2416,7 +2420,8 @@
   },
   {
     "type": "tabs",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "toml",
