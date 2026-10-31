@@ -56,3 +56,29 @@ cargo test --lib
 Commit generated parser files with grammar changes; do not patch generated C.
 Compiler behavior is additionally checked by Telora's core, CLI and external
 language tests. Invalid-input fixtures are expected to contain recovery nodes.
+
+## Helix 查询
+
+`queries/` 包含以下编辑器查询：
+
+- `highlights.scm`：语法高亮
+- `textobjects.scm`：Helix 文本对象，包括函数、参数、类型或结构、集合条目及注释
+- `indents.scm`：Helix 自动缩进，使用 `@indent` / `@outdent` 描述语法结构
+
+文本对象与缩进查询采用 Helix capture 约定；其他编辑器按其查询协议适配。
+缩进宽度由编辑器配置决定，统一使用 4 空格：
+
+```toml
+indent = { tab-width = 4, unit = "    " }
+```
+
+配置语言与 parser 后，将查询安装到 Helix runtime：
+
+```sh
+mkdir -p ~/.config/helix/runtime/queries/telora
+cp queries/*.scm ~/.config/helix/runtime/queries/telora/
+hx --health telora
+```
+
+`mif` / `maf` 选择函数内部 / 整体，`mip` / `map` 选择参数，
+`mic` / `mac` 选择类型或结构内部 / 整体（存在对应内部 capture 时）。
