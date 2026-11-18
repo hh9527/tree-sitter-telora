@@ -62,14 +62,14 @@
 
 ; ---------------------------------------------------------------- types
 (type_binding
-  (identifier) @type)
+  (identifier) @type.definition)
 
 (type_parameters
   (type_parameter
     (identifier) @type.parameter))
 
 (trait_binding
-  (identifier) @type)
+  (identifier) @type.definition)
 
 (trait_member
   (identifier) @function.method)
@@ -80,10 +80,11 @@
 (contract_expr
   (identifier) @type)
 
-(decorator
-  (decorator_path (identifier) @decorator))
-
 (decorator "@" @punctuation.delimiter)
+
+(decorator_path (identifier) @namespace)
+((decorator_path (identifier) @type) (#match? @type "^[A-Z]"))
+(decorator_path (identifier) @decorator .)
 
 ; ---------------------------------------------------------------- variables
 (variable_expr
@@ -125,14 +126,16 @@
   "]"
   "{"
   "}"
+] @punctuation.bracket
+
+(section_lparen) @punctuation.bracket
+
+[
   ","
   ":"
   ";"
   "."
-  "@"
-] @punctuation.bracket
-
-(section_lparen) @punctuation.bracket
+] @punctuation.delimiter
 
 ; ---------------------------------------------------------------- intrinsics
 (interpreter_intrinsic
@@ -143,6 +146,18 @@
   (identifier) @function.builtin)
 (legacy_interpreter_expr
   "interpreter" @keyword)
+
+; ---------------------------------------------------------------- paths
+(use_path (identifier) @namespace)
+((use_path (identifier) @type) (#match? @type "^[A-Z]"))
+(static_path (identifier) @namespace)
+((static_path (identifier) @type) (#match? @type "^[A-Z]"))
+(use_item (identifier) @namespace)
+((use_item (identifier) @type) (#match? @type "^[A-Z]"))
+
+; crate / self / super 是路径根，单独按关键字着色
+((use_path (identifier) @keyword) (#any-of? @keyword "crate" "self" "super"))
+((static_path (identifier) @keyword) (#any-of? @keyword "crate" "self" "super"))
 
 ; ---------------------------------------------------------------- errors
 (ERROR) @error
